@@ -1,0 +1,73 @@
+<footer class="footer" id="footer" role="contentinfo">
+  <div class="footer__top container">
+    <div class="footer__brand">
+      <a class="brand" href="#home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="38" height="38">
+            <rect width="32" height="32" rx="9" fill="white"/>
+            <path d="M14 8h4v6h6v4h-6v6h-4v-6H8v-4h6z" fill="#1E3A8A"/>
+          </svg>
+        </span>
+        <span class="brand__text">Medzoon</span>
+      </a>
+      <p class="footer__tag">
+        The medical records platform built for occupational health teams.
+        Secure by default, designed for clinicians, trusted by enterprises.
+      </p>
+      <div class="footer__social">
+        <a href="#" aria-label="Facebook"><app-icon name="facebook" [size]="18"></app-icon></a>
+        <a href="#" aria-label="Twitter"><app-icon name="twitter" [size]="18"></app-icon></a>
+        <a href="#" aria-label="Instagram"><app-icon name="instagram" [size]="18"></app-icon></a>
+        <a href="#" aria-label="LinkedIn"><app-icon name="linkedin" [size]="18"></app-icon></a>
+      </div>
+    </div>
+
+    <div class="footer__col">
+      <h4>Company</h4>
+      <ul>
+        @for (l of about; track l.href) {
+          <li><a [href]="l.href">{{ l.label }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4>Services</h4>
+      <ul>
+        @for (l of services; track l.label) {
+          <li><a [href]="l.href">{{ l.label }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4>Resources</h4>
+      <ul>
+        @for (l of resources; track l.label) {
+          <li><a [href]="l.href">{{ l.label }}</a></li>
+        }
+      </ul>
+    </div>
+
+    <div class="footer__col footer__contact">
+      <h4>Contact</h4>
+      <ul>
+        <li><app-icon name="pin" [size]="16"></app-icon> 480 Mission St, Suite 1200<br/>San Francisco, CA 94105</li>
+        <li><app-icon name="phone" [size]="16"></app-icon> +1 500-546-7789</li>
+        <li><app-icon name="mail" [size]="16"></app-icon> hello&#64;medzoon.health</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <div class="container footer__bottom-row">
+      <p>© {{ year }} Medzoon Health, Inc. All rights reserved.</p>
+      <div class="footer__legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">HIPAA Notice</a>
+        <a href="#">GDPR</a>
+      </div>
+    </div>
+  </div>
+</footer>

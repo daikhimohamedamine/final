@@ -1,0 +1,64 @@
+<section class="section" id="solutions" aria-labelledby="solutions-title">
+  <div class="container solutions__grid">
+    <div class="solutions__media" appReveal>
+      <div class="solutions__photo solutions__photo--main">
+        <img
+          src="https://images.unsplash.com/photo-1638202993928-7267aad84c31?auto=format&fit=crop&w=900&q=80"
+          alt="Two clinicians reviewing a patient chart on a tablet"
+          loading="lazy"
+        />
+        <button class="solutions__play" type="button" aria-label="Play overview video">
+          <app-icon name="play" [size]="22"></app-icon>
+        </button>
+      </div>
+      <div class="solutions__photo solutions__photo--small">
+        <img
+          src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=700&q=80"
+          alt="Smiling medical team in modern clinic"
+          loading="lazy"
+        />
+      </div>
+    </div>
+
+    <div class="solutions__content" appReveal>
+      <span class="eyebrow">Introduction Tour</span>
+      <h2 id="solutions-title">
+        We Are Best Professional in
+        <span class="text-primary">Medical Sectors</span>
+      </h2>
+      <p class="solutions__intro">
+        Medzoon was built side-by-side with occupational health teams managing thousands
+        of employees across multiple sites. Every workflow — from a first embauche exam
+        to an annual reminder — is designed by clinicians, for clinicians.
+      </p>
+
+      <ul class="solutions__bullets">
+        @for (b of bullets; track b) {
+          <li>
+            <span class="solutions__check"><app-icon name="check" [size]="14"></app-icon></span>
+            {{ b }}
+          </li>
+        }
+      </ul>
+    </div>
+
+    <aside class="solutions__hours bg-primary" appReveal aria-labelledby="hours-title">
+      <h3 id="hours-title">Opening Hours</h3>
+      <p class="solutions__hours-sub">
+        Our support team is available across business hours and on-call for emergencies.
+      </p>
+      <ul>
+        @for (h of hours; track h.day) {
+          <li>
+            <span>{{ h.day }}</span>
+            <strong>{{ h.time }}</strong>
+          </li>
+        }
+      </ul>
+      <div class="solutions__hours-foot">
+        <app-icon name="bell" [size]="18"></app-icon>
+        24/7 Emergency Care Open
+      </div>
+    </aside>
+  </div>
+</section>

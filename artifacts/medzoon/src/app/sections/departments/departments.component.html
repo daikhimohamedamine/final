@@ -1,0 +1,37 @@
+<section class="section bg-soft" id="departments" aria-labelledby="departments-title">
+  <div class="container">
+    <div class="dept__head">
+      <div appReveal>
+        <span class="eyebrow">Our Departments</span>
+        <h2 id="departments-title">
+          Extra Ordinary<br/>
+          <span class="text-primary">Health Solutions</span>
+        </h2>
+      </div>
+      <div class="dept__head-right" appReveal>
+        <p>
+          One platform for every clinical workflow your occupational health team runs —
+          from embauche to reprise, with role-based access, audit trails, and rock-solid
+          encryption baked in.
+        </p>
+        <a href="#solutions" class="btn btn-primary btn-sm">More Departments</a>
+      </div>
+    </div>
+
+    <div class="grid grid-4 dept__grid" appReveal="group">
+      @for (d of departments; track d.id) {
+        <article class="dept__card card">
+          <span class="dept__id">{{ d.id }}</span>
+          <div class="dept__icon">
+            <app-icon [name]="d.icon" [size]="28"></app-icon>
+          </div>
+          <h3 class="dept__name">{{ d.name }}</h3>
+          <p class="dept__desc">{{ d.description }}</p>
+          <a href="#process" class="dept__link">
+            LEARN MORE <app-icon name="arrow-right" [size]="14"></app-icon>
+          </a>
+        </article>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,20 @@
+<section class="section" id="process" aria-labelledby="process-title">
+  <div class="container">
+    <div class="section-head" appReveal>
+      <span class="eyebrow">Simple Process</span>
+      <h2 id="process-title">We Follow For Medical</h2>
+      <p>Four clear steps from the moment an employee joins your company to the day they retire — every record traceable, every action logged.</p>
+    </div>
+
+    <ol class="process__list" appReveal="group">
+      @for (s of steps; track s.num) {
+        <li class="process__step card">
+          <div class="process__num">{{ s.num }}</div>
+          <div class="process__icon"><app-icon [name]="s.icon" [size]="26"></app-icon></div>
+          <h3>{{ s.title }}</h3>
+          <p>{{ s.description }}</p>
+        </li>
+      }
+    </ol>
+  </div>
+</section>
