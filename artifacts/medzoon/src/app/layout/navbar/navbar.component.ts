@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, HostListener, signal } from '@angular/core';
 import { NgClass } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { IconComponent } from '../../shared/icon.component';
 
 interface NavItem { label: string; href: string; }
@@ -7,7 +8,7 @@ interface NavItem { label: string; href: string; }
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [NgClass, IconComponent],
+  imports: [NgClass, RouterLink, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',

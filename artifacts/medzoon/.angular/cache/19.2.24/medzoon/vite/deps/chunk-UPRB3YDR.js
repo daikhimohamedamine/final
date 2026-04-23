@@ -1,14 +1,14 @@
 import {
   EVENT_MANAGER_PLUGINS,
   EventManagerPlugin
-} from "./chunk-IIWMK3MH.js";
+} from "./chunk-XWRNR6NU.js";
 import {
   DOCUMENT,
   XhrFactory,
   getDOM,
   isPlatformServer,
   parseCookieValue
-} from "./chunk-UNRMVMQZ.js";
+} from "./chunk-3LRZV6Z2.js";
 import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
@@ -22,7 +22,6 @@ import {
   Injector,
   NgModule,
   NgZone,
-  Observable,
   Optional,
   PLATFORM_ID,
   PendingTasksInternal,
@@ -34,9 +33,6 @@ import {
   Version,
   XSS_SECURITY_URL,
   ZONELESS_ENABLED,
-  __async,
-  __objRest,
-  __spreadValues,
   _global,
   _sanitizeHtml,
   _sanitizeUrl,
@@ -48,24 +44,16 @@ import {
   bypassSanitizationTrustStyle,
   bypassSanitizationTrustUrl,
   computed,
-  concatMap,
-  filter,
-  finalize,
   formatRuntimeError,
   forwardRef,
-  from,
   inject,
   linkedSignal,
   makeEnvironmentProviders,
   makeStateKey,
-  map,
-  of,
   performanceMarkFeature,
   runInInjectionContext,
   setClassMetadata,
   signal,
-  switchMap,
-  tap,
   truncateMiddle,
   unwrapSafeValue,
   withDomHydration,
@@ -76,7 +64,21 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-6BT3536Q.js";
+} from "./chunk-4XM7K22P.js";
+import {
+  Observable,
+  __async,
+  __objRest,
+  __spreadValues,
+  concatMap,
+  filter,
+  finalize,
+  from,
+  map,
+  of,
+  switchMap,
+  tap
+} from "./chunk-SZPMUFGN.js";
 
 // ../../node_modules/.pnpm/@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.js@0.15.1__rxjs@7.8.2/node_modules/@angular/common/fesm2022/module-JS82OH2B.mjs
 var HttpHandler = class {
@@ -3270,4 +3272,4 @@ export {
    * License: MIT
    *)
 */
-//# sourceMappingURL=chunk-G5ADZRCC.js.map
+//# sourceMappingURL=chunk-UPRB3YDR.js.map

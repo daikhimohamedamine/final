@@ -45,6 +45,7 @@
     </nav>
 
     <div class="nav__cta">
+      <a routerLink="/login" class="nav__signin">Sign In</a>
       <a href="#contact" class="btn btn-primary btn-sm">Get Started</a>
       <button class="nav__burger" type="button" (click)="toggleMobile()" [attr.aria-expanded]="mobileOpen()" aria-label="Toggle menu">
         <app-icon [name]="mobileOpen() ? 'close' : 'menu'" [size]="22"></app-icon>

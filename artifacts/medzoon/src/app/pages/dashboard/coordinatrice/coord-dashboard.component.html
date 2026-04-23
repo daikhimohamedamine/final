@@ -1,0 +1,97 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Bonjour {{ user()?.firstName }}</h1>
+    <p>Your visits, reminders and follow-ups for today.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn-soft"><app-icon name="bell" [size]="14"></app-icon> Send reminders</button>
+    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Schedule visit</button>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  @for (k of kpis; track k.label) {
+    <div class="kpi">
+      <div>
+        <div class="kpi__label">{{ k.label }}</div>
+        <div class="kpi__value">{{ k.value }}</div>
+        <div class="kpi__delta" [class.kpi__delta--up]="k.up" [class.kpi__delta--down]="!k.up">
+          <app-icon name="arrow-right" [size]="12"></app-icon>{{ k.delta }}
+        </div>
+      </div>
+      <div class="kpi__icon"><app-icon [name]="k.icon" [size]="20"></app-icon></div>
+    </div>
+  }
+</div>
+
+<div class="split-2">
+  <section class="panel">
+    <div class="panel__head">
+      <div class="panel__title">
+        <h2>Today's Schedule</h2>
+        <p>Friday, April 24 — 6 visits planned</p>
+      </div>
+      <button class="btn-soft"><app-icon name="calendar" [size]="14"></app-icon> Open calendar</button>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Employee</th>
+          <th>Visit type</th>
+          <th>Clinician</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of schedule; track s.time) {
+          <tr>
+            <td><strong>{{ s.time }}</strong></td>
+            <td>{{ s.employee }}</td>
+            <td>{{ s.type }}</td>
+            <td>{{ s.doctor }}</td>
+            <td>
+              <span class="tag"
+                [class.tag--ok]="s.status==='Confirmed'"
+                [class.tag--warn]="s.status==='Pending'"
+                [class.tag--danger]="s.status==='Cancelled'">{{ s.status }}</span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+
+  <aside>
+    <section class="panel">
+      <div class="panel__head">
+        <div class="panel__title"><h2>Upcoming Reminders</h2></div>
+        <button class="btn-soft">All</button>
+      </div>
+      <ul class="list">
+        @for (r of reminders; track r.who) {
+          <li class="list-item">
+            <span class="list-item__icon"><app-icon name="bell" [size]="16"></app-icon></span>
+            <span class="list-item__body">
+              <strong>{{ r.who }}</strong>
+              <span>{{ r.what }}</span>
+            </span>
+            <span class="tag" [class.tag--ok]="r.level==='ok'" [class.tag--warn]="r.level==='warn'" [class.tag--danger]="r.level==='danger'">
+              {{ r.when }}
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head">
+        <div class="panel__title"><h2>Compliance by Department</h2></div>
+      </div>
+      <div class="bar-row"><span class="bar-row__label">Operations</span><span class="bar-row__bar"><span style="width: 99%"></span></span><span class="bar-row__value">99%</span></div>
+      <div class="bar-row"><span class="bar-row__label">Logistics</span><span class="bar-row__bar"><span style="width: 96%"></span></span><span class="bar-row__value">96%</span></div>
+      <div class="bar-row"><span class="bar-row__label">R&amp;D</span><span class="bar-row__bar"><span style="width: 92%"></span></span><span class="bar-row__value">92%</span></div>
+      <div class="bar-row"><span class="bar-row__label">Sales</span><span class="bar-row__bar"><span style="width: 88%"></span></span><span class="bar-row__value">88%</span></div>
+    </section>
+  </aside>
+</div>
