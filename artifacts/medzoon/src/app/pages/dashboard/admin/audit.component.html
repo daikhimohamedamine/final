@@ -1,0 +1,51 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Journaux d'audit</h1>
+    <p>Toutes les actions sensibles : connexions, consultations, modifications, exports.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Export RGPD (CSV)</button>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel__head">
+    <div class="panel__title"><h2>{{ list().length }} événement(s)</h2></div>
+    <div class="audit__filters">
+      <input class="audit__search" type="search" placeholder="Acteur, action, cible…" [value]="query()" (input)="query.set($any($event.target).value)"/>
+      <div class="audit__chips">
+        @for (l of ['All','ok','warn','danger']; track l) {
+          <button type="button" class="audit__chip" [class.is-active]="level() === l" (click)="level.set($any(l))">
+            {{ l === 'All' ? 'Tous' : (l === 'ok' ? 'OK' : (l === 'warn' ? 'Avertissement' : 'Danger')) }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Heure</th><th>Acteur</th><th>Action</th><th>Cible</th><th>IP</th><th>Niveau</th></tr>
+    </thead>
+    <tbody>
+      @for (e of list(); track e.id) {
+        <tr>
+          <td>{{ e.time }}</td>
+          <td>
+            <strong>{{ e.actor }}</strong><br/>
+            <span class="tag" [class.tag--admin]="e.actorRole==='admin'" [class.tag--coord]="e.actorRole==='coordinatrice'" [class.tag--doctor]="e.actorRole==='doctor'" [class.tag--neutral]="e.actorRole==='system'">{{ e.actorRole }}</span>
+          </td>
+          <td>{{ e.action }}</td>
+          <td>{{ e.target }}</td>
+          <td><code>{{ e.ip }}</code></td>
+          <td>
+            <span class="tag"
+              [class.tag--ok]="e.level==='ok'"
+              [class.tag--warn]="e.level==='warn'"
+              [class.tag--danger]="e.level==='danger'">{{ e.level }}</span>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>

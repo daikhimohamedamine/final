@@ -1,0 +1,56 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Rappels &amp; notifications</h1>
+    <p>Rappels automatiques (annuels), rappels manuels et historique d'envoi.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn-soft"><app-icon name="bell" [size]="14"></app-icon> Envoyer rappels</button>
+    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Rappel manuel</button>
+  </div>
+</div>
+
+<div class="split-2">
+  <section class="panel">
+    <div class="panel__head">
+      <div class="panel__title">
+        <h2>Rappels à échoir</h2>
+        <p>{{ upcoming.length }} rappel(s) actifs</p>
+      </div>
+    </div>
+    <ul class="list">
+      @for (r of upcoming; track r.id) {
+        <li class="list-item">
+          <span class="list-item__icon"><app-icon name="bell" [size]="16"></app-icon></span>
+          <span class="list-item__body">
+            <strong>{{ r.employee }}</strong>
+            <span>{{ r.reason }}</span>
+          </span>
+          <span class="tag" [class.tag--ok]="r.level==='ok'" [class.tag--warn]="r.level==='warn'" [class.tag--danger]="r.level==='danger'">{{ r.due }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <section class="panel">
+    <div class="panel__head">
+      <div class="panel__title">
+        <h2>Historique des envois</h2>
+      </div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>Date</th><th>Destinataire</th><th>Objet</th><th>Statut</th></tr>
+      </thead>
+      <tbody>
+        @for (h of history; track h.date) {
+          <tr>
+            <td>{{ h.date }}</td>
+            <td>{{ h.who }}</td>
+            <td>{{ h.subject }}</td>
+            <td><span class="tag" [class.tag--ok]="h.status==='Envoyé'" [class.tag--danger]="h.status==='Échec'">{{ h.status }}</span></td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</div>

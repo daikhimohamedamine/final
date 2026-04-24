@@ -1,0 +1,141 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Drug Library</h1>
+    <p>Recherchez et glissez un médicament vers la zone d'ordonnance pour préparer une prescription.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Imprimer ordonnance</button>
+  </div>
+</div>
+
+<div class="drugs">
+  <section class="drugs__library">
+    <div class="drugs__filters">
+      <div class="drugs__search">
+        <app-icon name="document" [size]="16"></app-icon>
+        <input
+          type="search"
+          placeholder="Nom commercial, DCI, indication ou maladie…"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+      </div>
+      <div class="drugs__cats">
+        @for (c of categories; track c) {
+          <button type="button"
+            class="drugs__cat"
+            [class.is-active]="category() === c"
+            (click)="category.set(c)">{{ c }}</button>
+        }
+      </div>
+    </div>
+
+    @if (filtered().length === 0) {
+      <div class="empty-state">Aucun médicament ne correspond à votre recherche.</div>
+    } @else {
+      <div class="drugs__grid">
+        @for (d of filtered(); track d.set_id) {
+          <article
+            class="drug-card"
+            [class.is-dragging]="draggingId() === d.set_id"
+            draggable="true"
+            (dragstart)="onDragStart($event, d)"
+            (dragend)="onDragEnd()"
+            (click)="open(d)">
+            <div class="drug-card__img">
+              <img [src]="d.image_lookup_url" [alt]="d.drug_name" loading="lazy"/>
+              <span class="drug-card__cat" [attr.data-cat]="d.category">{{ d.category }}</span>
+            </div>
+            <div class="drug-card__body">
+              <strong>{{ d.drug_name }}</strong>
+              <span class="drug-card__dci">{{ d.generic_name }} · {{ d.dosage }}</span>
+              <p>{{ d.indications }}</p>
+              <div class="drug-card__tags">
+                @for (s of d.sicknesses; track s) { <span class="drug-card__tag">{{ s }}</span> }
+              </div>
+            </div>
+            <button type="button" class="drug-card__add" (click)="addToRx(d); $event.stopPropagation()" aria-label="Add">
+              <app-icon name="plus" [size]="14"></app-icon>
+            </button>
+          </article>
+        }
+      </div>
+    }
+  </section>
+
+  <aside class="drugs__rx"
+    [class.is-active]="dropActive()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)">
+    <header class="drugs__rx-head">
+      <div>
+        <h2>Ordonnance en cours</h2>
+        <p>Glissez ici depuis la bibliothèque · {{ rx.items().length }} médicament(s)</p>
+      </div>
+      @if (rx.items().length > 0) {
+        <button type="button" class="drugs__rx-clear" (click)="rx.clear()">
+          <app-icon name="close" [size]="12"></app-icon> Vider
+        </button>
+      }
+    </header>
+
+    @if (rx.items().length === 0) {
+      <div class="drugs__rx-empty">
+        <span class="drugs__rx-empty-icon"><app-icon name="syringe" [size]="22"></app-icon></span>
+        <strong>Glissez-déposez un médicament ici</strong>
+        <p>Vous pouvez aussi cliquer sur le bouton « + » d'une carte ou ouvrir l'assistant IA.</p>
+      </div>
+    } @else {
+      <ul class="drugs__rx-list">
+        @for (p of rx.items(); track p.drug.set_id) {
+          <li class="rx-item">
+            <div class="rx-item__head">
+              <strong>{{ p.drug.drug_name }} <span>{{ p.drug.dosage }}</span></strong>
+              <button type="button" class="rx-item__remove" (click)="removeFromRx(p.drug.set_id)" aria-label="Remove">
+                <app-icon name="close" [size]="12"></app-icon>
+              </button>
+            </div>
+            <span class="rx-item__dci">{{ p.drug.generic_name }}</span>
+            <input
+              type="text"
+              class="rx-item__pos"
+              placeholder="Posologie (ex. 1 cp matin et soir pendant 7 jours)"
+              [value]="p.posology"
+              (input)="setPosology(p.drug.set_id, $any($event.target).value)"
+            />
+          </li>
+        }
+      </ul>
+
+      <button type="button" class="btn btn-primary btn-sm drugs__rx-save">
+        <app-icon name="check" [size]="14"></app-icon> Enregistrer dans la consultation
+      </button>
+    }
+  </aside>
+</div>
+
+@if (selected(); as d) {
+  <div class="drug-modal" (click)="closeDetail()">
+    <div class="drug-modal__panel" (click)="$event.stopPropagation()">
+      <button type="button" class="drug-modal__close" (click)="closeDetail()" aria-label="Close">
+        <app-icon name="close" [size]="18"></app-icon>
+      </button>
+      <img [src]="d.image_lookup_url" [alt]="d.drug_name"/>
+      <div class="drug-modal__body">
+        <span class="drug-card__cat" [attr.data-cat]="d.category">{{ d.category }}</span>
+        <h2>{{ d.drug_name }}</h2>
+        <p class="drug-modal__dci">{{ d.generic_name }} · {{ d.dosage }}</p>
+        <h3>Indications</h3>
+        <p>{{ d.indications }}</p>
+        <h3>Maladies cibles</h3>
+        <div class="drug-card__tags">
+          @for (s of d.sicknesses; track s) { <span class="drug-card__tag">{{ s }}</span> }
+        </div>
+        <button type="button" class="btn btn-primary btn-sm drug-modal__add" (click)="addToRx(d); closeDetail()">
+          <app-icon name="plus" [size]="14"></app-icon> Ajouter à l'ordonnance
+        </button>
+      </div>
+    </div>
+  </div>
+}

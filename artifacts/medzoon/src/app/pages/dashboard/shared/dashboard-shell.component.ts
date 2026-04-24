@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from '../../../auth/auth.service';
 import { ROLE_LABELS, UserRole } from '../../../auth/auth.types';
 import { IconComponent, IconName } from '../../../shared/icon.component';
+import { AiAssistantComponent } from '../doctor/ai-assistant.component';
 
 interface NavItem {
   label: string;
@@ -13,7 +14,7 @@ interface NavItem {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent, AiAssistantComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss',
@@ -62,5 +63,6 @@ const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
     { label: 'My Patients',  route: '/dashboard/doctor/patients',  icon: 'users' },
     { label: 'Consultations',route: '/dashboard/doctor/consults',  icon: 'document' },
     { label: 'Vaccinations', route: '/dashboard/doctor/vaccines',  icon: 'syringe' },
+    { label: 'Drug Library', route: '/dashboard/doctor/drugs',     icon: 'pill' },
   ],
 };

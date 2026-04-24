@@ -3,8 +3,18 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { DashboardShellComponent } from './pages/dashboard/shared/dashboard-shell.component';
 import { AdminDashboardComponent } from './pages/dashboard/admin/admin-dashboard.component';
+import { AdminUsersComponent } from './pages/dashboard/admin/users.component';
+import { AdminAuditComponent } from './pages/dashboard/admin/audit.component';
+import { AdminSettingsComponent } from './pages/dashboard/admin/settings.component';
 import { CoordDashboardComponent } from './pages/dashboard/coordinatrice/coord-dashboard.component';
+import { CoordEmployeesComponent } from './pages/dashboard/coordinatrice/employees.component';
+import { CoordScheduleComponent } from './pages/dashboard/coordinatrice/schedule.component';
+import { CoordRemindersComponent } from './pages/dashboard/coordinatrice/reminders.component';
 import { DoctorDashboardComponent } from './pages/dashboard/doctor/doctor-dashboard.component';
+import { PatientsComponent } from './pages/dashboard/doctor/patients.component';
+import { ConsultsComponent } from './pages/dashboard/doctor/consults.component';
+import { VaccinesComponent } from './pages/dashboard/doctor/vaccines.component';
+import { DrugsComponent } from './pages/dashboard/doctor/drugs.component';
 import { authGuard, dashboardRedirectGuard, roleGuard } from './auth/auth.guards';
 
 export const routes: Routes = [
@@ -16,9 +26,22 @@ export const routes: Routes = [
     component: DashboardShellComponent,
     children: [
       { path: '', canActivate: [dashboardRedirectGuard], children: [] },
-      { path: 'admin',         canActivate: [roleGuard('admin')],         component: AdminDashboardComponent },
-      { path: 'coordinatrice', canActivate: [roleGuard('coordinatrice')], component: CoordDashboardComponent },
-      { path: 'doctor',        canActivate: [roleGuard('doctor')],        component: DoctorDashboardComponent },
+
+      { path: 'admin',          canActivate: [roleGuard('admin')], component: AdminDashboardComponent },
+      { path: 'admin/users',    canActivate: [roleGuard('admin')], component: AdminUsersComponent },
+      { path: 'admin/audit',    canActivate: [roleGuard('admin')], component: AdminAuditComponent },
+      { path: 'admin/settings', canActivate: [roleGuard('admin')], component: AdminSettingsComponent },
+
+      { path: 'coordinatrice',           canActivate: [roleGuard('coordinatrice')], component: CoordDashboardComponent },
+      { path: 'coordinatrice/employees', canActivate: [roleGuard('coordinatrice')], component: CoordEmployeesComponent },
+      { path: 'coordinatrice/schedule',  canActivate: [roleGuard('coordinatrice')], component: CoordScheduleComponent },
+      { path: 'coordinatrice/reminders', canActivate: [roleGuard('coordinatrice')], component: CoordRemindersComponent },
+
+      { path: 'doctor',          canActivate: [roleGuard('doctor')], component: DoctorDashboardComponent },
+      { path: 'doctor/patients', canActivate: [roleGuard('doctor')], component: PatientsComponent },
+      { path: 'doctor/consults', canActivate: [roleGuard('doctor')], component: ConsultsComponent },
+      { path: 'doctor/vaccines', canActivate: [roleGuard('doctor')], component: VaccinesComponent },
+      { path: 'doctor/drugs',    canActivate: [roleGuard('doctor')], component: DrugsComponent },
     ],
   },
   { path: '**', redirectTo: '' },

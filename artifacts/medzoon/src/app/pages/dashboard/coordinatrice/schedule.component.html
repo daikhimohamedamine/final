@@ -1,0 +1,38 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Calendrier des visites</h1>
+    <p>Semaine du 21 au 25 avril 2026 — vue partagée coordinatrice & médecins.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn-soft"><app-icon name="calendar" [size]="14"></app-icon> Vue mois</button>
+    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Planifier visite</button>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="cal-week">
+    @for (d of week; track d.date) {
+      <div class="cal-day">
+        <header class="cal-day__head">
+          <strong>{{ d.day }}</strong>
+          <span>{{ d.visits.length }} visite(s)</span>
+        </header>
+        <div class="cal-day__body">
+          @if (d.visits.length === 0) {
+            <p class="cal-day__empty">Aucune visite</p>
+          }
+          @for (v of d.visits; track v.time + v.name) {
+            <div class="cal-visit"
+                 [class.cal-visit--done]="v.status==='Done'"
+                 [class.cal-visit--now]="v.status==='Now'">
+              <span class="cal-visit__time">{{ v.time }}</span>
+              <strong>{{ v.name }}</strong>
+              <span class="cal-visit__type">{{ v.type }}</span>
+              <span class="cal-visit__doc">{{ v.doctor }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>

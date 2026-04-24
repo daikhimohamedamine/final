@@ -1,0 +1,118 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Dossiers médicaux</h1>
+    <p>Recherche, création et gestion des dossiers patients.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Export Excel</button>
+    <button class="btn btn-primary btn-sm" (click)="open()"><app-icon name="plus" [size]="14"></app-icon> Nouveau dossier</button>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel__head">
+    <div class="panel__title">
+      <h2>{{ list().length }} dossier(s)</h2>
+    </div>
+    <div class="emp__filters">
+      <input class="emp__search" type="search" placeholder="Nom, matricule, poste…" [value]="query()" (input)="query.set($any($event.target).value)"/>
+      <div class="emp__chips">
+        @for (s of ['All','Active','Archived']; track s) {
+          <button type="button" class="emp__chip" [class.is-active]="status() === s" (click)="status.set($any(s))">{{ s }}</button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Patient</th>
+        <th>Matricule</th>
+        <th>Poste · Département</th>
+        <th>Embauche</th>
+        <th>Dernière visite</th>
+        <th>Statut</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (e of list(); track e.id) {
+        <tr>
+          <td>
+            <span class="cell-user">
+              <img [src]="e.avatar" [alt]="e.firstName + ' ' + e.lastName" loading="lazy"/>
+              <span>
+                <strong>{{ e.firstName }} {{ e.lastName }}</strong>
+                <span>Né(e) le {{ e.birthDate }}</span>
+              </span>
+            </span>
+          </td>
+          <td><code>{{ e.id }}</code></td>
+          <td>{{ e.position }}<br/><span style="color: var(--color-fg-soft); font-size: 0.78rem;">{{ e.department }}</span></td>
+          <td>{{ e.hireDate }}</td>
+          <td>{{ e.lastVisit }}</td>
+          <td><span class="tag" [class.tag--ok]="e.status==='Active'" [class.tag--neutral]="e.status==='Archived'">{{ e.status }}</span></td>
+          <td>
+            <div class="emp__row-actions">
+              <button class="emp__action" title="Consulter"><app-icon name="document" [size]="14"></app-icon></button>
+              <button class="emp__action" title="Modifier"><app-icon name="sparkles" [size]="14"></app-icon></button>
+              <button class="emp__action emp__action--danger" title="Archiver"><app-icon name="close" [size]="14"></app-icon></button>
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>
+
+@if (showCreate()) {
+  <div class="emp-modal" (click)="close()">
+    <div class="emp-modal__panel" (click)="$event.stopPropagation()">
+      <header class="emp-modal__head">
+        <h2>Nouveau dossier patient</h2>
+        <button class="emp-modal__close" (click)="close()" aria-label="Close"><app-icon name="close" [size]="18"></app-icon></button>
+      </header>
+
+      <div class="emp-modal__body">
+        <div class="emp-form__section">
+          <h3>5.1 Identification du travailleur</h3>
+          <div class="emp-form__grid">
+            <label class="emp-form__field"><span>N° dossier</span><input type="text" placeholder="Auto / manuel"/></label>
+            <label class="emp-form__field"><span>Nom</span><input type="text"/></label>
+            <label class="emp-form__field"><span>Prénom</span><input type="text"/></label>
+            <label class="emp-form__field"><span>Date de naissance</span><input type="date"/></label>
+            <label class="emp-form__field"><span>Lieu de naissance</span><input type="text"/></label>
+            <label class="emp-form__field"><span>Situation familiale</span>
+              <select><option>Célibataire</option><option>Marié(e)</option><option>Divorcé(e)</option><option>Veuf/Veuve</option></select>
+            </label>
+            <label class="emp-form__field"><span>Nombre d'enfants</span><input type="number" min="0"/></label>
+            <label class="emp-form__field"><span>Adresse</span><input type="text"/></label>
+            <label class="emp-form__field"><span>Code postal</span><input type="text"/></label>
+            <label class="emp-form__field"><span>Département</span>
+              <select><option>Operations</option><option>Logistics</option><option>R&D</option><option>Finance</option></select>
+            </label>
+            <label class="emp-form__field"><span>Poste de travail</span><input type="text"/></label>
+            <label class="emp-form__field"><span>Date d'embauche</span><input type="date"/></label>
+            <label class="emp-form__field"><span>N° matricule paie</span><input type="text"/></label>
+            <label class="emp-form__field"><span>N° matricule Caisse</span><input type="text"/></label>
+          </div>
+        </div>
+
+        <div class="emp-form__section">
+          <h3>5.3 Habitudes de vie</h3>
+          <div class="emp-form__row">
+            <label class="emp-form__check"><input type="checkbox"/> Tabac</label>
+            <label class="emp-form__check"><input type="checkbox"/> Alcool</label>
+            <label class="emp-form__check"><input type="checkbox"/> Automédication</label>
+          </div>
+        </div>
+      </div>
+
+      <footer class="emp-modal__foot">
+        <button class="btn-soft" (click)="close()">Annuler</button>
+        <button class="btn btn-primary btn-sm">Créer le dossier</button>
+      </footer>
+    </div>
+  </div>
+}

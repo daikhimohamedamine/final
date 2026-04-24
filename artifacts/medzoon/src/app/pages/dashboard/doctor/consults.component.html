@@ -1,0 +1,55 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Consultations &amp; examens</h1>
+    <p>Toutes les visites médicales par type, patient et conclusion.</p>
+  </div>
+  <div class="page-header__actions">
+    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Nouvelle consultation</button>
+  </div>
+</div>
+
+<section class="panel">
+  <div class="panel__head">
+    <div class="panel__title">
+      <h2>{{ list().length }} consultation(s)</h2>
+    </div>
+    <div class="consults__filters">
+      <input class="consults__search" type="search" placeholder="Patient, matricule…" [value]="query()" (input)="query.set($any($event.target).value)"/>
+      <div class="consults__chips">
+        @for (t of types; track t) {
+          <button type="button" class="consults__chip" [class.is-active]="type() === t" (click)="type.set(t)">{{ t }}</button>
+        }
+      </div>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Patient</th>
+        <th>Type</th>
+        <th>Médecin</th>
+        <th>TA / Poids</th>
+        <th>Conclusion</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (c of list(); track c.id) {
+        <tr>
+          <td><strong>{{ c.date }}</strong><br/><span style="color: var(--color-fg-soft); font-size: 0.78rem;">{{ c.time }}</span></td>
+          <td>{{ c.employeeName }}<br/><code>{{ c.employeeId }}</code></td>
+          <td><span class="tag tag--neutral">{{ c.type }}</span></td>
+          <td>{{ c.doctor }}</td>
+          <td>{{ c.bp }} · {{ c.weight }} kg</td>
+          <td>
+            <span class="tag"
+              [class.tag--ok]="c.conclusion==='Apte'"
+              [class.tag--warn]="c.conclusion==='Apte avec restrictions' || c.conclusion==='À revoir'"
+              [class.tag--danger]="c.conclusion==='Inapte temporaire'">{{ c.conclusion }}</span>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</section>
