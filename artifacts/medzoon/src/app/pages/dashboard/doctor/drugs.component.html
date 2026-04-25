@@ -4,7 +4,7 @@
     <p>Recherchez et glissez un médicament vers la zone d'ordonnance pour préparer une prescription.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Imprimer ordonnance</button>
+    <button class="btn-soft" (click)="printPrescription()"><app-icon name="document" [size]="14"></app-icon> Imprimer ordonnance</button>
   </div>
 </div>
 
@@ -108,7 +108,7 @@
         }
       </ul>
 
-      <button type="button" class="btn btn-primary btn-sm drugs__rx-save">
+      <button type="button" class="btn btn-primary btn-sm drugs__rx-save" (click)="saveToConsultation()">
         <app-icon name="check" [size]="14"></app-icon> Enregistrer dans la consultation
       </button>
     }

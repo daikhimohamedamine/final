@@ -4,7 +4,7 @@
     <p>Gérer les comptes Médecin, Coordinatrice et Administrateur. Aucun accès aux données médicales.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Export CSV</button>
+    <button class="btn-soft" (click)="loadUsers()"><app-icon name="document" [size]="14"></app-icon> Refresh</button>
     <button class="btn btn-primary btn-sm" (click)="open()"><app-icon name="plus" [size]="14"></app-icon> Inviter un utilisateur</button>
   </div>
 </div>
@@ -39,9 +39,9 @@
           <td>{{ u.last }}</td>
           <td>
             <div class="users__actions">
-              <button class="users__action" title="Réinitialiser MDP"><app-icon name="lock" [size]="14"></app-icon></button>
-              <button class="users__action" title="Modifier"><app-icon name="sparkles" [size]="14"></app-icon></button>
-              <button class="users__action users__action--danger" title="Désactiver"><app-icon name="close" [size]="14"></app-icon></button>
+              <button class="users__action" title="Réinitialiser MDP" (click)="open()"><app-icon name="lock" [size]="14"></app-icon></button>
+              <button class="users__action" title="Modifier" (click)="open()"><app-icon name="sparkles" [size]="14"></app-icon></button>
+              <button class="users__action users__action--danger" title="Désactiver" (click)="disableUser(u)"><app-icon name="close" [size]="14"></app-icon></button>
             </div>
           </td>
         </tr>
@@ -58,20 +58,21 @@
         <button (click)="close()" aria-label="Close"><app-icon name="close" [size]="18"></app-icon></button>
       </header>
       <div class="invite-modal__body">
-        <label><span>Prénom</span><input type="text"/></label>
-        <label><span>Nom</span><input type="text"/></label>
-        <label class="invite-modal__full"><span>Email</span><input type="email" placeholder="prenom.nom@medzoon.health"/></label>
+        <label><span>Prénom</span><input type="text" [value]="invite().firstName" (input)="updateInvite('firstName', $any($event.target).value)"/></label>
+        <label><span>Nom</span><input type="text" [value]="invite().lastName" (input)="updateInvite('lastName', $any($event.target).value)"/></label>
+        <label class="invite-modal__full"><span>Email</span><input type="email" placeholder="prenom.nom@medzoon.health" [value]="invite().email" (input)="updateInvite('email', $any($event.target).value)"/></label>
+        <label class="invite-modal__full"><span>Mot de passe temporaire</span><input type="password" placeholder="••••••••" [value]="invite().password" (input)="updateInvite('password', $any($event.target).value)"/></label>
         <label class="invite-modal__full"><span>Rôle</span>
-          <select>
-            <option value="coord">Coordinatrice médicale</option>
-            <option value="doctor">Médecin du travail</option>
-            <option value="admin">Administrateur</option>
+          <select [value]="invite().role" (change)="updateInvite('role', $any($event.target).value)">
+            <option value="COORDINATRICE">Coordinatrice médicale</option>
+            <option value="DOCTOR">Médecin du travail</option>
+            <option value="ADMIN">Administrateur</option>
           </select>
         </label>
       </div>
       <footer>
         <button class="btn-soft" (click)="close()">Annuler</button>
-        <button class="btn btn-primary btn-sm">Envoyer l'invitation</button>
+        <button class="btn btn-primary btn-sm" (click)="inviteUser()">Envoyer l'invitation</button>
       </footer>
     </div>
   </div>

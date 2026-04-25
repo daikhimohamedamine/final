@@ -4,8 +4,8 @@
     <p>Rappels automatiques (annuels), rappels manuels et historique d'envoi.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft"><app-icon name="bell" [size]="14"></app-icon> Envoyer rappels</button>
-    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Rappel manuel</button>
+    <button class="btn-soft" (click)="sendAll()"><app-icon name="bell" [size]="14"></app-icon> Envoyer rappels</button>
+    <button class="btn btn-primary btn-sm" (click)="openCreateManual()"><app-icon name="plus" [size]="14"></app-icon> Rappel manuel</button>
   </div>
 </div>
 
@@ -14,11 +14,11 @@
     <div class="panel__head">
       <div class="panel__title">
         <h2>Rappels à échoir</h2>
-        <p>{{ upcoming.length }} rappel(s) actifs</p>
+        <p>{{ upcoming().length }} rappel(s) actifs</p>
       </div>
     </div>
     <ul class="list">
-      @for (r of upcoming; track r.id) {
+      @for (r of upcoming(); track r.id) {
         <li class="list-item">
           <span class="list-item__icon"><app-icon name="bell" [size]="16"></app-icon></span>
           <span class="list-item__body">
@@ -42,7 +42,7 @@
         <tr><th>Date</th><th>Destinataire</th><th>Objet</th><th>Statut</th></tr>
       </thead>
       <tbody>
-        @for (h of history; track h.date) {
+        @for (h of history(); track h.date) {
           <tr>
             <td>{{ h.date }}</td>
             <td>{{ h.who }}</td>
@@ -54,3 +54,24 @@
     </table>
   </section>
 </div>
+
+@if (showCreate()) {
+  <div class="emp-modal" (click)="closeCreateManual()">
+    <div class="emp-modal__panel" (click)="$event.stopPropagation()">
+      <header class="emp-modal__head">
+        <h2>Nouveau rappel manuel</h2>
+        <button class="emp-modal__close" (click)="closeCreateManual()" aria-label="Close"><app-icon name="close" [size]="18"></app-icon></button>
+      </header>
+      <div class="emp-modal__body">
+        <div class="emp-form__grid">
+          <label class="emp-form__field"><span>Employee ID</span><input type="number" [value]="createForm().employeeId" (input)="updateCreateForm('employeeId', $any($event.target).value)"/></label>
+          <label class="emp-form__field"><span>Date échéance</span><input type="date" [value]="createForm().dateEcheance" (input)="updateCreateForm('dateEcheance', $any($event.target).value)"/></label>
+        </div>
+      </div>
+      <footer class="emp-modal__foot">
+        <button class="btn-soft" (click)="closeCreateManual()">Annuler</button>
+        <button class="btn btn-primary btn-sm" (click)="createManual()">Créer</button>
+      </footer>
+    </div>
+  </div>
+}

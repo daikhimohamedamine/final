@@ -4,7 +4,7 @@
     <p>Toutes les visites médicales par type, patient et conclusion.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Nouvelle consultation</button>
+    <button class="btn btn-primary btn-sm" (click)="openCreateConsultation()"><app-icon name="plus" [size]="14"></app-icon> Nouvelle consultation</button>
   </div>
 </div>
 
@@ -32,6 +32,7 @@
         <th>Médecin</th>
         <th>TA / Poids</th>
         <th>Conclusion</th>
+        <th>Documents</th>
       </tr>
     </thead>
     <tbody>
@@ -48,8 +49,127 @@
               [class.tag--warn]="c.conclusion==='Apte avec restrictions' || c.conclusion==='À revoir'"
               [class.tag--danger]="c.conclusion==='Inapte temporaire'">{{ c.conclusion }}</span>
           </td>
+          <td>
+            <button type="button" class="btn-soft" (click)="openDocuments(c)">Voir</button>
+          </td>
         </tr>
       }
     </tbody>
   </table>
 </section>
+
+@if (showCreate()) {
+  <div class="emp-modal" (click)="closeCreateConsultation()">
+    <div class="emp-modal__panel" (click)="$event.stopPropagation()">
+      <header class="emp-modal__head">
+        <h2>Nouvelle consultation</h2>
+        <button class="emp-modal__close" (click)="closeCreateConsultation()" aria-label="Close"><app-icon name="close" [size]="18"></app-icon></button>
+      </header>
+
+      <div class="emp-modal__body">
+        <div class="emp-form__grid">
+          <label class="emp-form__field"><span>Employee ID</span>
+            <input type="number" [value]="form().employeeId" (input)="updateForm('employeeId', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field"><span>Type</span>
+            <select [value]="form().type" (change)="updateForm('type', $any($event.target).value)">
+              @for (t of types; track t) {
+                @if (t !== 'All') { <option [value]="t">{{ t }}</option> }
+              }
+            </select>
+          </label>
+          <label class="emp-form__field"><span>Date</span>
+            <input type="date" [value]="form().date" (input)="updateForm('date', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field emp-form__field--full"><span>Diagnostic/Notes</span>
+            <textarea rows="4" [value]="form().diagnostic" (input)="updateForm('diagnostic', $any($event.target).value)"></textarea>
+          </label>
+          <label class="emp-form__field"><span>Poids (kg)</span>
+            <input type="number" [value]="form().poids" (input)="updateForm('poids', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field"><span>Taille (cm)</span>
+            <input type="number" [value]="form().taille" (input)="updateForm('taille', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field"><span>Tension systolique</span>
+            <input type="number" [value]="form().tensionSystolique" (input)="updateForm('tensionSystolique', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field"><span>Tension diastolique</span>
+            <input type="number" [value]="form().tensionDiastolique" (input)="updateForm('tensionDiastolique', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field"><span>Conclusion</span>
+            <select [value]="form().conclusion" (change)="updateForm('conclusion', $any($event.target).value)">
+              <option value="Apte">Apte</option>
+              <option value="Apte avec restrictions">Apte avec restrictions</option>
+              <option value="Inapte temporaire">Inapte temporaire</option>
+              <option value="À revoir">À revoir</option>
+            </select>
+          </label>
+          <label class="emp-form__field"><span>Apte</span>
+            <input type="checkbox" [checked]="form().apte" (change)="updateForm('apte', $any($event.target).checked)"/>
+          </label>
+          <label class="emp-form__field emp-form__field--full"><span>Inapte précision</span>
+            <input type="text" [value]="form().inaptePrecision" (input)="updateForm('inaptePrecision', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field"><span>Inapte définitif</span>
+            <input type="checkbox" [checked]="form().inapteDefinitif" (change)="updateForm('inapteDefinitif', $any($event.target).checked)"/>
+          </label>
+          <label class="emp-form__field emp-form__field--full"><span>Reclassification</span>
+            <input type="text" [value]="form().reclassification" (input)="updateForm('reclassification', $any($event.target).value)"/>
+          </label>
+          <label class="emp-form__field emp-form__field--full"><span>Examens spéciaux</span>
+            <textarea rows="2" [value]="form().examensSpeciaux" (input)="updateForm('examensSpeciaux', $any($event.target).value)"></textarea>
+          </label>
+          <label class="emp-form__field emp-form__field--full"><span>Pièce jointe (optionnel)</span>
+            <input type="file" (change)="onCreateFileSelected($event)"/>
+          </label>
+        </div>
+      </div>
+
+      <footer class="emp-modal__foot">
+        <button class="btn-soft" (click)="closeCreateConsultation()">Annuler</button>
+        <button class="btn btn-primary btn-sm" [disabled]="creating()" (click)="createConsultation()">
+          {{ creating() ? 'Création...' : 'Créer consultation' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+}
+
+@if (showDocs()) {
+  <div class="emp-modal" (click)="closeDocuments()">
+    <div class="emp-modal__panel" (click)="$event.stopPropagation()">
+      <header class="emp-modal__head">
+        <h2>Documents consultation #{{ selectedConsultation()?.id }}</h2>
+        <button class="emp-modal__close" (click)="closeDocuments()" aria-label="Close"><app-icon name="close" [size]="18"></app-icon></button>
+      </header>
+      <div class="emp-modal__body">
+        <div class="emp-form__grid">
+          <label class="emp-form__field emp-form__field--full"><span>Uploader document</span>
+            <input type="file" (change)="onDocsFileSelected($event)"/>
+          </label>
+          <div class="emp-form__field emp-form__field--full" style="display:flex; gap:8px;">
+            <button class="btn btn-primary btn-sm" (click)="uploadDocumentForConsultation()">Upload</button>
+            <button class="btn-soft" (click)="refreshDocuments()">Refresh</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Nom</th><th>Taille</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            @for (d of documents(); track d.id) {
+              <tr>
+                <td>{{ d.nomFichier }}</td>
+                <td>{{ d.taille }}</td>
+                <td style="display:flex; gap:8px;">
+                  <button class="btn-soft" (click)="downloadDocument(d)">Télécharger</button>
+                  <button class="btn-soft" (click)="deleteDocument(d)">Supprimer</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

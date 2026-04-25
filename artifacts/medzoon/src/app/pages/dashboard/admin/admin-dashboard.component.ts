@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { IconComponent } from '../../../shared/icon.component';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -12,34 +15,45 @@ import { IconComponent } from '../../../shared/icon.component';
 })
 export class AdminDashboardComponent {
   user = inject(AuthService).user;
+  private router = inject(Router);
+  private api = inject(BackendApiService);
+  usersList = signal<any[]>([]);
+  auditList = signal<any[]>([]);
 
   kpis = [
-    { label: 'Active Users',     value: '128',   delta: '+12 this month',  up: true,  icon: 'users' as const },
-    { label: 'Records Stored',   value: '17,402',delta: '+842 this week',  up: true,  icon: 'document' as const },
-    { label: 'Open Audit Items', value: '3',     delta: '−2 since Monday', up: true,  icon: 'shield' as const },
-    { label: 'Storage Used',     value: '64%',   delta: 'of 1.0 TB plan',  up: false, icon: 'chart' as const },
+    { label: 'Active Users',     value: '...',   delta: 'Loading',  up: true,  icon: 'users' as const },
+    { label: 'Records Stored',   value: '...',   delta: 'Loading',  icon: 'document' as const },
+    { label: 'Open Audit Items', value: '...',   delta: 'Loading',  up: true,  icon: 'shield' as const },
+    { label: 'Storage Used',     value: '...',   delta: 'Loading',  up: false, icon: 'chart' as const },
   ];
 
-  users = [
-    { name: 'Léa Bernard',    email: 'lea.bernard@medzoon.health',    role: 'coord',  status: 'Active', last: '2m ago',
-      avatar: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=120&q=80' },
-    { name: 'Camille Dubois', email: 'camille.dubois@medzoon.health', role: 'doctor', status: 'Active', last: '14m ago',
-      avatar: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&w=120&q=80' },
-    { name: 'Idris Okafor',   email: 'idris.okafor@medzoon.health',   role: 'doctor', status: 'Active', last: '1h ago',
-      avatar: 'https://images.unsplash.com/photo-1612531385446-f7e6d131e1d0?auto=format&fit=crop&w=120&q=80' },
-    { name: 'Aria Nakamura',  email: 'aria.nakamura@medzoon.health',  role: 'coord',  status: 'Pending', last: 'never',
-      avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=120&q=80' },
-    { name: 'Marc Lefèvre',   email: 'marc.lefevre@medzoon.health',   role: 'admin',  status: 'Active', last: '3d ago',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=120&q=80' },
-  ];
+  constructor() {
+    this.load();
+  }
 
-  audit = [
-    { actor: 'Camille Dubois', action: 'Viewed record',    target: 'EMP-1042 Pierre M.',  time: '2 min ago',  level: 'ok' },
-    { actor: 'Léa Bernard',    action: 'Edited visit',     target: 'EMP-0871 Naima K.',   time: '14 min ago', level: 'ok' },
-    { actor: 'System',         action: 'Permission denied', target: 'Export attempt',     time: '1 hr ago',   level: 'warn' },
-    { actor: 'Idris Okafor',   action: 'Created vaccine record', target: 'EMP-0322 Tom R.', time: '2 hr ago', level: 'ok' },
-    { actor: 'Margaux Laurent',action: 'Invited user',     target: 'aria.nakamura@…',     time: '5 hr ago',   level: 'ok' },
-  ];
+  async load() {
+    try {
+      const [users, logs] = await Promise.all([
+        firstValueFrom(this.api.adminUsers()),
+        firstValueFrom(this.api.adminAuditLogs())
+      ]);
+      this.usersList.set(users.map((u: any) => ({
+        name: `${u.prenom} ${u.nom}`,
+        email: u.email,
+        role: u.role?.toLowerCase(),
+        status: u.enabled ? 'Active' : 'Disabled',
+        last: '-',
+        avatar: ''
+      })));
+      this.auditList.set(logs.slice(0, 5).map((l: any) => ({
+        actor: `User #${l.userId}`,
+        action: l.action,
+        target: `${l.entityType}#${l.entityId}`,
+        time: l.timestamp,
+        level: 'ok'
+      })));
+    } catch {}
+  }
 
   rolesDist = [
     { label: 'Doctors',         pct: 45 },
@@ -47,4 +61,8 @@ export class AdminDashboardComponent {
     { label: 'HR Managers',     pct: 15 },
     { label: 'Administrators',  pct: 8  },
   ];
+
+  goUsers() { this.router.navigateByUrl('/dashboard/admin/users'); }
+  goAudit() { this.router.navigateByUrl('/dashboard/admin/audit'); }
+  exportReport() { this.router.navigateByUrl('/dashboard/admin/audit'); }
 }

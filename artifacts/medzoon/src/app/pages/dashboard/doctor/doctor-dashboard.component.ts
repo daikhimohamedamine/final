@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { IconComponent } from '../../../shared/icon.component';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-doctor-dashboard',
@@ -12,26 +15,41 @@ import { IconComponent } from '../../../shared/icon.component';
 })
 export class DoctorDashboardComponent {
   user = inject(AuthService).user;
+  private router = inject(Router);
+  private api = inject(BackendApiService);
+  agendaList = signal<any[]>([]);
 
   kpis = [
-    { label: 'Today\'s consults', value: '8',   delta: '4 completed',         up: true,  icon: 'stethoscope' as const },
-    { label: 'Patients followed', value: '312', delta: '+6 this month',       up: true,  icon: 'users' as const },
-    { label: 'Reports to sign',   value: '5',   delta: '2 due today',         up: false, icon: 'document' as const },
-    { label: 'Vaccine alerts',    value: '11',  delta: '3 overdue',           up: false, icon: 'syringe' as const },
+    { label: 'Today\'s consults', value: '...',   delta: 'Loading',         up: true,  icon: 'stethoscope' as const },
+    { label: 'Patients followed', value: '...', delta: 'Loading',       up: true,  icon: 'users' as const },
+    { label: 'Reports to sign',   value: '...',   delta: 'Loading',         up: false, icon: 'document' as const },
+    { label: 'Vaccine alerts',    value: '...',  delta: 'Loading',           up: false, icon: 'syringe' as const },
   ];
 
-  agenda = [
-    { time: '09:00', patient: 'Pierre Mercier',  type: 'Hire visit',     status: 'Done',     id: 'EMP-1042',
-      avatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=120&q=80' },
-    { time: '09:45', patient: 'Naima Khelifa',   type: 'Annual check',   status: 'Done',     id: 'EMP-0871',
-      avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=120&q=80' },
-    { time: '10:30', patient: 'Tomas Reyes',     type: 'Vaccine — Tdap', status: 'Now',      id: 'EMP-0322',
-      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80' },
-    { time: '11:15', patient: 'Sofia Andersen',  type: 'Return-to-work', status: 'Upcoming', id: 'EMP-0450',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80' },
-    { time: '13:30', patient: 'Yara Haddad',     type: 'Hearing test',   status: 'Upcoming', id: 'EMP-0612',
-      avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=120&q=80' },
-  ];
+  constructor() {
+    this.load();
+  }
+
+  async load() {
+    try {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      
+      const rows = await firstValueFrom(this.api.appointments(today.toISOString(), tomorrow.toISOString()));
+      if (Array.isArray(rows)) {
+        this.agendaList.set(rows.map((a: any) => ({
+          time: a.dateDebut.substring(11, 16),
+          patient: `Employee #${a.employeeId}`,
+          type: a.typeVisite ?? '-',
+          status: a.statut,
+          id: String(a.employeeId),
+          avatar: ''
+        })));
+      }
+    } catch {}
+  }
 
   alerts = [
     { patient: 'Marc Lefèvre',     vaccine: 'Tdap booster',     due: 'Due in 3 days',   level: 'warn' },
@@ -44,4 +62,8 @@ export class DoctorDashboardComponent {
     { label: 'Reports completed',  pct: 92, value: '92%' },
     { label: 'Patient satisfaction', pct: 96, value: '4.8/5' },
   ];
+
+  openConsults() { this.router.navigateByUrl('/dashboard/doctor/consults'); }
+  openPatients() { this.router.navigateByUrl('/dashboard/doctor/patients'); }
+  openVaccines() { this.router.navigateByUrl('/dashboard/doctor/vaccines'); }
 }

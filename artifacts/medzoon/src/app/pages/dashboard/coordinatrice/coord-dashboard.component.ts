@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/auth.service';
 import { IconComponent } from '../../../shared/icon.component';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-coord-dashboard',
@@ -12,22 +15,40 @@ import { IconComponent } from '../../../shared/icon.component';
 })
 export class CoordDashboardComponent {
   user = inject(AuthService).user;
+  private router = inject(Router);
+  private api = inject(BackendApiService);
+  scheduleList = signal<any[]>([]);
 
   kpis = [
-    { label: 'Visits this week', value: '47',  delta: '+8 vs last week',  up: true,  icon: 'calendar' as const },
-    { label: 'Pending records',  value: '12',  delta: '4 require signature', up: false, icon: 'document' as const },
-    { label: 'Reminders sent',   value: '156', delta: '93% open rate',    up: true,  icon: 'bell' as const },
-    { label: 'Compliance rate',  value: '98%', delta: '+2pts this month', up: true,  icon: 'shield' as const },
+    { label: 'Visits this week', value: '...',  delta: 'Loading',  up: true,  icon: 'calendar' as const },
+    { label: 'Pending records',  value: '...',  delta: 'Loading',  up: false, icon: 'document' as const },
+    { label: 'Reminders sent',   value: '...',  delta: 'Loading',  up: true,  icon: 'bell' as const },
+    { label: 'Compliance rate',  value: '...',  delta: 'Loading',  up: true,  icon: 'shield' as const },
   ];
 
-  schedule = [
-    { time: '09:00', employee: 'Pierre Mercier',  type: 'Hire visit',     doctor: 'Dr. Dubois',  status: 'Confirmed' },
-    { time: '09:45', employee: 'Naima Khelifa',   type: 'Annual check',   doctor: 'Dr. Okafor',  status: 'Confirmed' },
-    { time: '10:30', employee: 'Tomas Reyes',     type: 'Vaccine — Tdap', doctor: 'Dr. Dubois',  status: 'Pending' },
-    { time: '11:15', employee: 'Sofia Andersen',  type: 'Return-to-work', doctor: 'Dr. Okafor',  status: 'Confirmed' },
-    { time: '13:30', employee: 'Liam O\'Connor',  type: 'Follow-up',      doctor: 'Dr. Dubois',  status: 'Cancelled' },
-    { time: '14:15', employee: 'Yara Haddad',     type: 'Hearing test',   doctor: 'Dr. Okafor',  status: 'Confirmed' },
-  ];
+  constructor() {
+    this.load();
+  }
+
+  async load() {
+    try {
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      
+      const rows = await firstValueFrom(this.api.appointments(today.toISOString(), tomorrow.toISOString()));
+      if (Array.isArray(rows)) {
+        this.scheduleList.set(rows.map((a: any) => ({
+          time: a.dateDebut.substring(11, 16),
+          employee: `Employee #${a.employeeId}`,
+          type: a.typeVisite ?? '-',
+          doctor: `Dr. #${a.medecinId ?? '-'}`,
+          status: a.statut
+        })));
+      }
+    } catch {}
+  }
 
   reminders = [
     { who: 'Marc Lefèvre',   what: 'Tdap booster due',          when: 'in 3 days',  level: 'warn' },
@@ -35,4 +56,7 @@ export class CoordDashboardComponent {
     { who: 'Hugo Martin',    what: 'Audiometry recommended',    when: 'in 12 days', level: 'ok' },
     { who: 'Elena Rossi',    what: 'Spirometry scheduled',      when: 'tomorrow',   level: 'ok' },
   ];
+
+  openReminders() { this.router.navigateByUrl('/dashboard/coordinatrice/reminders'); }
+  openSchedule() { this.router.navigateByUrl('/dashboard/coordinatrice/schedule'); }
 }

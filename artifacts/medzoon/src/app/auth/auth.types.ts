@@ -9,6 +9,7 @@ export interface User {
   title: string;
   avatar: string;
   organization: string;
+  token?: string;
 }
 
 export const ROLE_LABELS: Record<UserRole, string> = {

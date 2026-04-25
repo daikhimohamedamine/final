@@ -4,8 +4,8 @@
     <p>Here's how your organization's medical records platform is performing today.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Export report</button>
-    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Invite user</button>
+    <button class="btn-soft" (click)="exportReport()"><app-icon name="document" [size]="14"></app-icon> Export report</button>
+    <button class="btn btn-primary btn-sm" (click)="goUsers()"><app-icon name="plus" [size]="14"></app-icon> Invite user</button>
   </div>
 </div>
 
@@ -32,7 +32,7 @@
         <h2>Users &amp; Roles</h2>
         <p>Manage access for clinicians and administrative staff.</p>
       </div>
-      <button class="btn-soft"><app-icon name="users" [size]="14"></app-icon> Manage all</button>
+      <button class="btn-soft" (click)="goUsers()"><app-icon name="users" [size]="14"></app-icon> Manage all</button>
     </div>
     <table class="data-table">
       <thead>
@@ -44,7 +44,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (u of users; track u.email) {
+        @for (u of usersList(); track u.email) {
           <tr>
             <td>
               <span class="cell-user">
@@ -87,10 +87,10 @@
     <section class="panel">
       <div class="panel__head">
         <div class="panel__title"><h2>Recent Audit Events</h2></div>
-        <button class="btn-soft">View log</button>
+        <button class="btn-soft" (click)="goAudit()">View log</button>
       </div>
       <ul class="list">
-        @for (a of audit; track a.time) {
+        @for (a of auditList(); track a.time) {
           <li class="list-item">
             <span class="list-item__icon"><app-icon [name]="a.level==='warn' ? 'shield' : 'document'" [size]="16"></app-icon></span>
             <span class="list-item__body">

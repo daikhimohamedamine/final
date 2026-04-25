@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../../shared/icon.component';
-import { DRUGS, Drug } from '../../../data/medical-data';
+import { Drug } from '../../../core/models/models';
 import { PrescriptionService } from './prescription.service';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { firstValueFrom } from 'rxjs';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -20,6 +22,8 @@ interface Message {
 })
 export class AiAssistantComponent {
   private rx = inject(PrescriptionService);
+  private api = inject(BackendApiService);
+  private drugs = signal<Drug[]>([]);
 
   open = signal(false);
   input = signal('');
@@ -34,6 +38,26 @@ export class AiAssistantComponent {
   badgeCount = computed(() => this.rx.items().length);
 
   toggle() { this.open.update((v) => !v); }
+  constructor() {
+    this.loadDrugs();
+  }
+
+  private async loadDrugs() {
+    try {
+      const res = await firstValueFrom(this.api.drugs());
+      const rows = Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
+      this.drugs.set(rows.map((d: any) => ({
+        set_id: d.setId ?? String(d.id),
+        drug_name: d.drugName ?? '',
+        generic_name: d.genericName ?? '',
+        category: 'Respiratory',
+        dosage: d.dosage ?? '',
+        indications: d.indications ?? '',
+        sicknesses: Array.isArray(d.sicknesses) ? d.sicknesses : [],
+        image_lookup_url: d.imageLookupUrl ?? '',
+      } as Drug)));
+    } catch {}
+  }
 
   send() {
     const text = this.input().trim();
@@ -42,18 +66,30 @@ export class AiAssistantComponent {
     this.messages.update((m) => [...m, { role: 'user', text }]);
     this.thinking.set(true);
 
-    setTimeout(() => {
+    this.callAi(text);
+  }
+
+  private async callAi(text: string) {
+    try {
+      const res = await firstValueFrom(this.api.aiRecommend({ employeeId: 1, symptoms: text }));
+      const suggestions = Array.isArray(res?.recommendations) ? res.recommendations : [];
+      this.messages.update((m) => [
+        ...m,
+        { role: 'assistant', text: 'Recommandations backend IA reçues.', suggestions: suggestions.map((s: any) => ({
+          drug: this.drugs().find((d) => d.drug_name === s.drug_name) ?? this.drugs()[0],
+          reason: s.justification ?? 'Suggestion IA',
+          warning: s.warning,
+        })) },
+      ]);
+    } catch {
       const recos = this.recommend(text);
       const reply: Message = recos.length
-        ? {
-            role: 'assistant',
-            text: `D'après les symptômes décrits et le dossier patient, je suggère ${recos.length} traitement(s) :`,
-            suggestions: recos,
-          }
+        ? { role: 'assistant', text: `D'après les symptômes décrits et le dossier patient, je suggère ${recos.length} traitement(s) :`, suggestions: recos }
         : { role: 'assistant', text: 'Je n\'ai pas trouvé de correspondance directe. Reformulez avec d\'autres mots-clés (ex. : « toux grasse, fièvre, allergie pénicilline »).' };
       this.messages.update((m) => [...m, reply]);
+    } finally {
       this.thinking.set(false);
-    }, 850);
+    }
   }
 
   prescribe(drug: Drug) {
@@ -65,7 +101,7 @@ export class AiAssistantComponent {
     const allergyPenicillin = /allerg.*p[ée]nicill|allerg.*amoxicill/.test(q);
     const hypertension = /hta|hypertension|tension|140|150|160/.test(q);
 
-    const scored = DRUGS.map((d) => {
+    const scored = this.drugs().map((d) => {
       let score = 0;
       const reasons: string[] = [];
       for (const k of d.sicknesses) {

@@ -23,19 +23,11 @@ export class LoginComponent {
   loading = signal(false);
   ROLE_LABELS = ROLE_LABELS;
 
-  demos = this.auth.demoAccounts();
-
-  fill(email: string, password: string) {
-    this.email.set(email);
-    this.password.set(password);
-    this.error.set(null);
-  }
-
-  submit(event: Event) {
+  async submit(event: Event) {
     event.preventDefault();
     this.error.set(null);
     this.loading.set(true);
-    const result = this.auth.signIn(this.email(), this.password());
+    const result = await this.auth.signIn(this.email(), this.password());
     this.loading.set(false);
     if (!result.ok) {
       this.error.set(result.error);

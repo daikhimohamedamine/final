@@ -67,7 +67,7 @@
       </div>
 
       <div class="dash__topbar-right">
-        <button class="dash__icon-btn" type="button" aria-label="Notifications">
+        <button class="dash__icon-btn" type="button" aria-label="Notifications" (click)="openNotifications()">
           <app-icon name="bell" [size]="18"></app-icon>
           <span class="dash__badge">3</span>
         </button>
@@ -105,6 +105,14 @@
     </header>
 
     <main class="dash__content">
+      @if (feedback.message(); as m) {
+        <div class="dash__feedback" [attr.data-type]="m.type">
+          <span>{{ m.text }}</span>
+          <button type="button" (click)="closeFeedback()" aria-label="Dismiss">
+            <app-icon name="close" [size]="14"></app-icon>
+          </button>
+        </div>
+      }
       <router-outlet/>
     </main>
   </div>

@@ -4,8 +4,8 @@
     <p>You have 8 consultations today and 5 reports awaiting your signature.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft"><app-icon name="document" [size]="14"></app-icon> Sign reports</button>
-    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> New consultation</button>
+    <button class="btn-soft" (click)="openConsults()"><app-icon name="document" [size]="14"></app-icon> Sign reports</button>
+    <button class="btn btn-primary btn-sm" (click)="openConsults()"><app-icon name="plus" [size]="14"></app-icon> New consultation</button>
   </div>
 </div>
 
@@ -31,10 +31,10 @@
         <h2>Today's Patients</h2>
         <p>Tap a patient to open their full medical record.</p>
       </div>
-      <button class="btn-soft"><app-icon name="users" [size]="14"></app-icon> View all</button>
+      <button class="btn-soft" (click)="openPatients()"><app-icon name="users" [size]="14"></app-icon> View all</button>
     </div>
     <ul class="list">
-      @for (a of agenda; track a.id) {
+      @for (a of agendaList(); track a.id) {
         <li class="list-item">
           <img [src]="a.avatar" [alt]="a.patient" class="list-item__avatar"/>
           <span class="list-item__body">
@@ -54,7 +54,7 @@
     <section class="panel">
       <div class="panel__head">
         <div class="panel__title"><h2>Vaccine Alerts</h2></div>
-        <button class="btn-soft">All</button>
+        <button class="btn-soft" (click)="openVaccines()">All</button>
       </div>
       <ul class="list">
         @for (al of alerts; track al.patient) {

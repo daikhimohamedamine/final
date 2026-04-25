@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { IconComponent } from '../../../shared/icon.component';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { FeedbackService } from '../../../core/ui/feedback.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-admin-users',
@@ -10,6 +13,8 @@ import { IconComponent } from '../../../shared/icon.component';
   styleUrls: ['../shared/dash-ui.scss', './users.component.scss'],
 })
 export class AdminUsersComponent {
+  private api = inject(BackendApiService);
+  private feedback = inject(FeedbackService);
   users = signal([
     { name: 'Léa Bernard',     email: 'lea.bernard@medzoon.health',    role: 'coord',  status: 'Active', mfa: true,  last: '2 min',
       avatar: 'https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&w=120&q=80' },
@@ -26,6 +31,67 @@ export class AdminUsersComponent {
   ]);
 
   showInvite = signal(false);
+  invite = signal({ firstName: '', lastName: '', email: '', password: '', role: 'COORDINATRICE' });
+
+  constructor() {
+    this.loadUsers();
+  }
+
+  async loadUsers() {
+    try {
+      const rows = await firstValueFrom(this.api.adminUsers());
+      if (Array.isArray(rows) && rows.length) {
+        this.users.set(rows.map((u: any) => ({
+          id: u.id,
+          name: `${u.prenom ?? ''} ${u.nom ?? ''}`.trim(),
+          email: u.email,
+          role: (u.role ?? 'COORDINATRICE').toLowerCase().replace('coordinatrice', 'coord'),
+          status: u.enabled ? 'Active' : 'Suspended',
+          mfa: true,
+          last: 'Now',
+          avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
+        })));
+      }
+    } catch {
+      this.feedback.error('Unable to load users.');
+    }
+  }
+
   open()  { this.showInvite.set(true); }
   close() { this.showInvite.set(false); }
+
+  async inviteUser() {
+    const v = this.invite();
+    if (!v.email || !v.firstName || !v.lastName) return;
+    try {
+      await firstValueFrom(this.api.createAdminUser({
+        email: v.email,
+        passwordHash: v.password || 'password123',
+        nom: v.lastName,
+        prenom: v.firstName,
+        role: v.role,
+        enabled: true,
+      }));
+      await this.loadUsers();
+      this.close();
+      this.feedback.success('User invited successfully.');
+    } catch {
+      this.feedback.error('Failed to invite user.');
+    }
+  }
+
+  async disableUser(user: any) {
+    if (!user?.id) return;
+    try {
+      await firstValueFrom(this.api.disableAdminUser(user.id));
+      await this.loadUsers();
+      this.feedback.success('User disabled.');
+    } catch {
+      this.feedback.error('Failed to disable user.');
+    }
+  }
+
+  updateInvite(key: string, value: string) {
+    this.invite.update(i => ({ ...i, [key]: value }));
+  }
 }

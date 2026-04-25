@@ -4,6 +4,7 @@ import { AuthService } from '../../../auth/auth.service';
 import { ROLE_LABELS, UserRole } from '../../../auth/auth.types';
 import { IconComponent, IconName } from '../../../shared/icon.component';
 import { AiAssistantComponent } from '../doctor/ai-assistant.component';
+import { FeedbackService } from '../../../core/ui/feedback.service';
 
 interface NavItem {
   label: string;
@@ -22,6 +23,7 @@ interface NavItem {
 export class DashboardShellComponent {
   auth = inject(AuthService);
   private router = inject(Router);
+  feedback = inject(FeedbackService);
 
   ROLE_LABELS = ROLE_LABELS;
   user = this.auth.user;
@@ -42,6 +44,17 @@ export class DashboardShellComponent {
   signOut() {
     this.closeMenu();
     this.auth.signOut();
+  }
+
+  openNotifications() {
+    const role = this.user()?.role;
+    if (role === 'admin') this.router.navigateByUrl('/dashboard/admin/audit');
+    if (role === 'coordinatrice') this.router.navigateByUrl('/dashboard/coordinatrice/reminders');
+    if (role === 'doctor') this.router.navigateByUrl('/dashboard/doctor/vaccines');
+  }
+
+  closeFeedback() {
+    this.feedback.clear();
   }
 }
 

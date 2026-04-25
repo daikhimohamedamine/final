@@ -59,22 +59,7 @@
       </button>
     </form>
 
-    <div class="login__demo">
-      <div class="login__demo-head">
-        <app-icon name="sparkles" [size]="14"></app-icon>
-        <span>Demo accounts — click to fill</span>
-      </div>
-      <div class="login__demo-grid">
-        @for (d of demos; track d.email) {
-          <button type="button" class="login__demo-card" (click)="fill(d.email, d.password)">
-            <span class="login__demo-role" [attr.data-role]="d.role">{{ ROLE_LABELS[d.role] }}</span>
-            <strong>{{ d.firstName }} {{ d.lastName }}</strong>
-            <span class="login__demo-email">{{ d.email }}</span>
-            <span class="login__demo-pass">password: {{ d.password }}</span>
-          </button>
-        }
-      </div>
-    </div>
+
   </div>
 
   <aside class="login__art" aria-hidden="true">

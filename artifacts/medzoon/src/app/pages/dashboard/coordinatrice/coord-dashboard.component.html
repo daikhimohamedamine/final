@@ -4,8 +4,8 @@
     <p>Your visits, reminders and follow-ups for today.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft"><app-icon name="bell" [size]="14"></app-icon> Send reminders</button>
-    <button class="btn btn-primary btn-sm"><app-icon name="plus" [size]="14"></app-icon> Schedule visit</button>
+    <button class="btn-soft" (click)="openReminders()"><app-icon name="bell" [size]="14"></app-icon> Send reminders</button>
+    <button class="btn btn-primary btn-sm" (click)="openSchedule()"><app-icon name="plus" [size]="14"></app-icon> Schedule visit</button>
   </div>
 </div>
 
@@ -31,7 +31,7 @@
         <h2>Today's Schedule</h2>
         <p>Friday, April 24 — 6 visits planned</p>
       </div>
-      <button class="btn-soft"><app-icon name="calendar" [size]="14"></app-icon> Open calendar</button>
+      <button class="btn-soft" (click)="openSchedule()"><app-icon name="calendar" [size]="14"></app-icon> Open calendar</button>
     </div>
     <table class="data-table">
       <thead>
@@ -44,7 +44,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (s of schedule; track s.time) {
+        @for (s of scheduleList(); track $index) {
           <tr>
             <td><strong>{{ s.time }}</strong></td>
             <td>{{ s.employee }}</td>
@@ -66,7 +66,7 @@
     <section class="panel">
       <div class="panel__head">
         <div class="panel__title"><h2>Upcoming Reminders</h2></div>
-        <button class="btn-soft">All</button>
+        <button class="btn-soft" (click)="openReminders()">All</button>
       </div>
       <ul class="list">
         @for (r of reminders; track r.who) {
