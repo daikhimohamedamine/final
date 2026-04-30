@@ -76,7 +76,7 @@ public class AppointmentController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof SecurityUser securityUser) {
             UserEntity user = securityUser.user();
-            if (user.getRole() == Role.COORDINATRICE) {
+            if (user.getRole() == Role.COORDINATRICE && payload.getMedecinId() == null) {
                 payload.setMedecinId(user.getAssignedMedecinId());
             } else if (user.getRole() == Role.MEDECIN) {
                 payload.setMedecinId(user.getId());

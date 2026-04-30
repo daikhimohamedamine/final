@@ -68,12 +68,24 @@ public class GetDashboardStatsTool implements Tool {
                     data.put("appointments_next_7_days", week);
                 }
                 case COORDINATRICE -> {
-                    long allEmp = employees.count();
-                    int todays = appointments.findByDateDebutBetween(startOfDay, endOfDay).size();
+                    long medecinId = user.getAssignedMedecinId() != null ? user.getAssignedMedecinId() : -1L;
+                    long empCount;
+                    int todays;
+                    
+                    if (medecinId != -1L) {
+                        empCount = employees.countByMedecinId(medecinId);
+                        todays = appointments.findByMedecinIdAndDateDebutBetween(medecinId, startOfDay, endOfDay).size();
+                    } else {
+                        empCount = employees.count();
+                        todays = appointments.findByDateDebutBetween(startOfDay, endOfDay).size();
+                    }
+                    
                     int pendingReminders = reminders
                             .findByDateEcheanceBetweenAndEnvoyeFalseOrderByDateEcheanceAsc(
                                     today, weekEnd).size();
-                    data.put("total_employees", allEmp);
+                                    
+                    data.put("assigned_doctor_id", medecinId != -1L ? medecinId : "None");
+                    data.put("total_employees", empCount);
                     data.put("appointments_today", todays);
                     data.put("pending_reminders_next_7_days", pendingReminders);
                 }

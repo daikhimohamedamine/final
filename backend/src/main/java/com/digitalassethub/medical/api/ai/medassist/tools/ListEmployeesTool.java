@@ -48,6 +48,11 @@ public class ListEmployeesTool implements Tool {
                     user.getId(), nom, prenom, pageable);
             rows = page.getContent();
             total = page.getTotalElements();
+        } else if (user.getRole() == Role.COORDINATRICE && user.getAssignedMedecinId() != null) {
+            var page = employees.findByMedecinIdAndNomContainingIgnoreCaseAndPrenomContainingIgnoreCase(
+                    user.getAssignedMedecinId(), nom, prenom, pageable);
+            rows = page.getContent();
+            total = page.getTotalElements();
         } else {
             var page = employees.findByNomContainingIgnoreCaseAndPrenomContainingIgnoreCase(
                     nom, prenom, pageable);

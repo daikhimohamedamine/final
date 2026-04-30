@@ -44,6 +44,8 @@ public class ListAppointmentsTool implements Tool {
         List<AppointmentEntity> rows;
         if (user.getRole() == Role.MEDECIN) {
             rows = appointments.findByMedecinIdAndDateDebutBetween(user.getId(), fromDt, toDt);
+        } else if (user.getRole() == Role.COORDINATRICE && user.getAssignedMedecinId() != null) {
+            rows = appointments.findByMedecinIdAndDateDebutBetween(user.getAssignedMedecinId(), fromDt, toDt);
         } else {
             rows = appointments.findByDateDebutBetween(fromDt, toDt);
         }

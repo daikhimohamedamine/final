@@ -122,9 +122,9 @@ public class GetAppInfoTool implements Tool {
 
     private Map<String, Object> coordFeatures() {
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("scope", "Coordination administrative. Ne peut PAS prescrire ni rédiger des SOAP.");
-        m.put("employees", "Créer / archiver des dossiers employés. Renseigner antécédents, poste de travail, médecin référent.");
-        m.put("appointments", "Planifier, modifier ou annuler des rendez-vous. Affecter à un médecin.");
+        m.put("scope", "Coordination administrative pour son médecin assigné (assigned_medecin_id). Ne peut PAS prescrire ni rédiger des SOAP.");
+        m.put("employees", "Créer / archiver des dossiers employés. Renseigner antécédents, poste de travail. L'employé est automatiquement assigné au médecin de la coordinatrice.");
+        m.put("appointments", "Planifier, modifier ou annuler des rendez-vous. Par défaut, le rendez-vous est affecté au médecin de la coordinatrice.");
         m.put("reminders", "Programmer des rappels (visite annuelle, vaccin, suivi). Marquer comme envoyés ou déclencher l'envoi par email.");
         m.put("workflow", "Flux typique : créer dossier employé → planifier visite → envoyer rappel → médecin réalise consultation.");
         return m;
@@ -243,10 +243,11 @@ public class GetAppInfoTool implements Tool {
                 "INTERDIT : prescription, note SOAP"
         ));
         m.put("COORDINATRICE", List.of(
-                "CRUD employés",
-                "CRUD rendez-vous",
+                "Gestion administrative pour son médecin assigné",
+                "CRUD employés (assignés par défaut à son médecin)",
+                "CRUD rendez-vous (assignés par défaut à son médecin)",
                 "CRUD rappels",
-                "Lecture consultations",
+                "Lecture consultations (liées à son médecin)",
                 "INTERDIT : prescription, note SOAP, audit"
         ));
         m.put("MEDECIN", List.of(
