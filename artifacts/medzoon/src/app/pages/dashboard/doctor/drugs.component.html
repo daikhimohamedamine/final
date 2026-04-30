@@ -1,0 +1,155 @@
+<div class="page-header">
+  <div class="page-header__title">
+    <h1>Bibliothèque Médicale</h1>
+    <p>Consultez les médicaments ou gérez vos ressources personnelles.</p>
+  </div>
+  <div class="page-header__actions">
+    <div class="tab-switcher">
+      <button [class.active]="activeTab()==='DRUGS'" (click)="setTab('DRUGS')">Médicaments</button>
+      <button [class.active]="activeTab()==='RESOURCES'" (click)="setTab('RESOURCES')">Mes Ressources</button>
+    </div>
+    @if (activeTab() === 'RESOURCES') {
+      <button class="btn btn-primary btn-sm" (click)="showUploadResource.set(true)">
+        <app-icon name="plus" [size]="14"></app-icon> Ajouter un document
+      </button>
+    }
+  </div>
+</div>
+
+<div class="library-container">
+  <!-- Section Médicaments -->
+  @if (activeTab() === 'DRUGS') {
+    <div class="drugs-grid-layout">
+      <div class="main-content">
+        <div class="search-bar">
+          <input type="text" [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Nom commercial, DCI, indication ou maladie...">
+        </div>
+        
+        <div class="category-filters">
+          @for (c of categories; track c) {
+            <button class="chip" [class.active]="category() === c" (click)="category.set(c)">{{ c }}</button>
+          }
+        </div>
+
+        <div class="cards-grid">
+          @for (d of filteredDrugs(); track d.set_id) {
+            <div class="drug-card" draggable="true" (dragstart)="onDragStart($event, d)" (dragend)="onDragEnd()" (click)="addToRx(d)">
+              <div class="drug-card__header">
+                <span class="tag">{{ d.category }}</span>
+              </div>
+              <h3>{{ d.drug_name }}</h3>
+              <p class="generic">{{ d.generic_name }}</p>
+              <p class="indications">{{ d.indications }}</p>
+            </div>
+          }
+        </div>
+      </div>
+
+      <aside class="prescription-sidebar" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)" [class.drop-active]="dropActive()">
+        <div class="sidebar-header">
+          <h3>Ordonnance en cours</h3>
+          <p>{{ rx.items().length }} médicament(s)</p>
+        </div>
+
+        <div class="sidebar-body">
+          @if (rx.items().length === 0) {
+            <div class="empty-state">
+              <app-icon name="plus" [size]="32"></app-icon>
+              <p>Glissez-déposez des médicaments ici</p>
+            </div>
+          } @else {
+            <div class="rx-list">
+              @for (item of rx.items(); track item.drug.set_id) {
+                <div class="rx-item">
+                  <div class="rx-item__head">
+                    <strong>{{ item.drug.drug_name }}</strong>
+                    <button (click)="removeFromRx(item.drug.set_id)"><app-icon name="close" [size]="14"></app-icon></button>
+                  </div>
+                  <input type="text" [value]="item.posology" (input)="setPosology(item.drug.set_id, $any($event.target).value)" placeholder="Posologie...">
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+
+  <!-- Section Mes Ressources -->
+  @if (activeTab() === 'RESOURCES') {
+    <div class="resources-grid mt-4">
+      @for (r of filteredResources(); track r.id) {
+        <div class="resource-card">
+          <div class="resource-card__icon">
+            @switch (r.categorie) {
+              @case ('LIVRE') { <app-icon name="document" [size]="32"></app-icon> }
+              @case ('LIVRE_MEDICAL') { <app-icon name="document" [size]="32" style="color: var(--color-primary);"></app-icon> }
+              @case ('JOURNAL') { <app-icon name="chart" [size]="32"></app-icon> }
+              @case ('CERTIFICAT') { <app-icon name="shield" [size]="32" style="color: #059669;"></app-icon> }
+              @case ('EXPERIENCE') { <app-icon name="briefcase" [size]="32" style="color: #7c3aed;"></app-icon> }
+              @default { <app-icon name="folder" [size]="32"></app-icon> }
+            }
+          </div>
+          <div class="resource-card__content">
+            <span class="tag tag--xs">{{ r.categorie }}</span>
+            <h4 class="text-truncate" [title]="r.nomFichier">{{ r.nomFichier }}</h4>
+            <p class="description">{{ r.description || 'Aucune description' }}</p>
+            <span class="date">Ajouté le {{ r.uploadedAt | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="resource-card__actions">
+            <button class="btn-icon btn-icon--sm" (click)="downloadResource(r)" title="Télécharger">
+              <app-icon name="plus" [size]="14"></app-icon>
+            </button>
+            <button class="btn-icon btn-icon--sm btn-icon--danger" (click)="deleteResource(r)" title="Supprimer">
+              <app-icon name="close" [size]="14"></app-icon>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state full-width">
+          <app-icon name="folder" [size]="48"></app-icon>
+          <p>Aucun document dans votre bibliothèque.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal Upload Ressource -->
+@if (showUploadResource()) {
+  <div class="emp-modal" (click)="showUploadResource.set(false)">
+    <div class="emp-modal__panel" (click)="$event.stopPropagation()">
+      <header class="emp-modal__head">
+        <h2>Ajouter une ressource</h2>
+        <button class="emp-modal__close" (click)="showUploadResource.set(false)"><app-icon name="close" [size]="18"></app-icon></button>
+      </header>
+      <div class="emp-modal__body">
+        <div class="emp-form__grid">
+          <label class="emp-form__field">
+            <span>Fichier (PDF, Image...)</span>
+            <input type="file" (change)="onFileSelected($event)">
+          </label>
+          <label class="emp-form__field">
+            <span>Catégorie</span>
+            <select [(ngModel)]="uploadData().categorie">
+              <option value="LIVRE">Livre / Guide</option>
+              <option value="LIVRE_MEDICAL">Livre Médical Spécialisé</option>
+              <option value="JOURNAL">Journal Médical</option>
+              <option value="CERTIFICAT">Certificat</option>
+              <option value="EXPERIENCE">Attestation d'expérience</option>
+              <option value="AUTRE">Autre</option>
+            </select>
+          </label>
+          <label class="emp-form__field full">
+            <span>Description</span>
+            <textarea [(ngModel)]="uploadData().description" placeholder="Ex: Guide de médecine du travail 2024"></textarea>
+          </label>
+        </div>
+      </div>
+      <footer class="emp-modal__foot">
+        <button class="btn-soft" (click)="showUploadResource.set(false)">Annuler</button>
+        <button class="btn btn-primary" (click)="uploadResource()" [disabled]="!uploadFile()">Téléverser</button>
+      </footer>
+    </div>
+  </div>
+}
