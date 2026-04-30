@@ -53,6 +53,20 @@ llm:
   api-key: AIzaSyADJd-tdyzzZPXBTT3H0mD94U6CHDX4opQ
   model: gemini-1.5-flash-latest
 
+openrouter:
+  base-url: ${OPENROUTER_BASE_URL:https://openrouter.ai/api/v1}
+  api-key: ${OPENROUTER_API_KEY:}
+  model: ${OPENROUTER_MODEL:nvidia/nemotron-nano-9b-v2:free}
+  http-referer: ${OPENROUTER_HTTP_REFERER:https://medassist.app}
+  app-title: ${OPENROUTER_APP_TITLE:MedAssist}
+  max-tokens: ${AI_MAX_TOKENS:2048}
+
+medassist:
+  session-ttl-seconds: ${AI_SESSION_TTL_SECONDS:7200}
+  max-history-messages: ${AI_MAX_HISTORY_MESSAGES:30}
+  summary-threshold: ${AI_SUMMARY_THRESHOLD:20}
+  max-tool-iterations: ${AI_MAX_TOOL_ITERATIONS:6}
+
 logging:
   level:
     org.springframework.security: DEBUG

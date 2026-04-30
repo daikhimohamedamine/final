@@ -47,3 +47,38 @@ The `@workspace/medzoon` Angular 19 artifact includes a full client-side auth fl
 - **PrescriptionService** (`pages/dashboard/doctor/prescription.service.ts`) — shared signal store consumed by both `DrugsComponent` and `AiAssistantComponent`.
 - **AI Assistant** (`pages/dashboard/doctor/ai-assistant.component.*`) — floating bubble mounted globally for `doctor` role in the dashboard shell. Symptom-driven recommendations with penicillin allergy detection and "add to prescription" flow.
 - **Sidebar nav** — extended in `dashboard-shell.component.ts` with all sub-routes per role.
+
+## MedAssist AI Engine (Spring Boot backend)
+
+The `/api/v1/ai/chat` endpoint is now powered by a custom agentic engine (`backend/src/main/java/com/digitalassethub/medical/api/ai/medassist/`) that drives an OpenRouter-hosted Nemotron reasoning model.
+
+### Configuration (`application.yml` → `openrouter.*` and `medassist.*`)
+- `OPENROUTER_API_KEY` — required
+- `OPENROUTER_MODEL` — defaults to `nvidia/nemotron-nano-9b-v2:free`
+- `AI_MAX_TOOL_ITERATIONS` (default 6), `AI_SESSION_TTL_SECONDS` (7200), `AI_MAX_HISTORY_MESSAGES` (30), `AI_SUMMARY_THRESHOLD` (20)
+
+### Engine pieces
+- `OpenRouterClient` — OpenAI-compatible POST to `/chat/completions`.
+- `MedAssistSystemPrompt` — role-aware system prompt teaching the model the manual `tool_call` JSON-block format (Nemotron reasoning models do not support native function calling).
+- `ToolParser` — extracts ` ```tool_call ` blocks and strips `<think>…</think>` reasoning blocks.
+- `MemoryManager` — in-process per-session message store with TTL and threshold-based summarization (replaces the spec's Redis store).
+- `MedAssistEngine` — agentic loop (max 6 iterations).
+- `ToolRegistry` — auto-collects all `Tool` beans.
+
+### Tools (`medassist/tools/`)
+1. **get_patient_history** — assembles profile, antecedents, recent consultations, vitals (with BMI), and appointments for an `EmployeeEntity`. MEDECIN can only access patients assigned to them.
+2. **search_medical_library** — searches `DrugEntity` by drug name, generic name, indications, and sicknesses.
+3. **generate_prescription** — MEDECIN-only. Runs `check_drug_interactions` first; if no major conflicts, persists a `ConsultationEntity` of type `ORDONNANCE` with the prescription JSON in the encrypted `details` column.
+4. **recommend_doctor** — symptom→specialty mapping (50+ keywords FR/EN) returning matched MEDECIN users.
+5. **check_drug_interactions** — bundled drug-drug interaction table + patient allergy/antecedent scan derived from `EmployeeEntity` antecedent fields.
+6. **generate_soap_note** — MEDECIN-only. Persists a `ConsultationEntity` of type `SOAP` with markdown SOAP note in `details`.
+
+### HTTP API
+- `POST /api/v1/ai/chat` — JSON `{ message, history?, sessionId? }` → `{ response, thinking?, toolCalls?, error? }`. Backwards-compatible with the previous Gemini-based endpoint.
+- `POST /api/v1/ai/stream` — Server-Sent Events emitting `tool_call`, `tool_result`, `thinking`, `response`, `done`, `error` events.
+- `DELETE /api/v1/ai/sessions/{sessionId}` — wipe in-memory conversation.
+
+### Role mapping (no patient login in this system)
+- `MEDECIN` → doctor mode (full clinical features incl. prescriptions/SOAP)
+- `COORDINATRICE` → coordinator mode (read-only patient lookups; cannot prescribe)
+- `ADMIN` → admin mode (read-only; cannot prescribe)
