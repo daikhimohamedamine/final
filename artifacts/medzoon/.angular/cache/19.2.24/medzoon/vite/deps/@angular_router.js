@@ -1,8 +1,8 @@
 import {
   Title
-} from "./chunk-2IZW5WP2.js";
-import "./chunk-ULT3E7W3.js";
-import "./chunk-5XEKNLZP.js";
+} from "./chunk-T3H72NFR.js";
+import "./chunk-Z6UQDJ4H.js";
+import "./chunk-LL2OYLZO.js";
 import {
   HashLocationStrategy,
   LOCATION_INITIALIZED,
@@ -10,10 +10,10 @@ import {
   LocationStrategy,
   PathLocationStrategy,
   ViewportScroller
-} from "./chunk-XXEYNNXT.js";
+} from "./chunk-LBLKYAGV.js";
 import {
   DOCUMENT
-} from "./chunk-YYCSJY5N.js";
+} from "./chunk-DBFGVMRF.js";
 import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
@@ -120,7 +120,7 @@ import {
   __spreadValues
 } from "./chunk-3OV72XIM.js";
 
-// ../../node_modules/.pnpm/@angular+router@19.2.21_@an_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router-Dwfin5Au.mjs
+// ../../node_modules/.pnpm/@angular+router@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.j_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router-Dwfin5Au.mjs
 var PRIMARY_OUTLET = "primary";
 var RouteTitleKey = Symbol("RouteTitle");
 var ParamsAsMap = class {
@@ -4749,7 +4749,7 @@ function isPublicRouterEvent(e) {
   return !(e instanceof BeforeActivateRoutes) && !(e instanceof RedirectRequest);
 }
 
-// ../../node_modules/.pnpm/@angular+router@19.2.21_@an_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router_module-DTJgGWLd.mjs
+// ../../node_modules/.pnpm/@angular+router@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.j_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router_module-DTJgGWLd.mjs
 var RouterLink = class _RouterLink {
   router;
   route;
@@ -5882,7 +5882,7 @@ function provideRouterInitializer() {
   ];
 }
 
-// ../../node_modules/.pnpm/@angular+router@19.2.21_@an_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router.mjs
+// ../../node_modules/.pnpm/@angular+router@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.j_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router.mjs
 function mapToCanMatch(providers) {
   return providers.map((provider) => (...params) => inject(provider).canMatch(...params));
 }
