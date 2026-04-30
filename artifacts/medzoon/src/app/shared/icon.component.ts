@@ -40,7 +40,9 @@ export type IconName =
   | 'quote'
   | 'briefcase'
   | 'edit'
-  | 'camera';
+  | 'camera'
+  | 'refresh'
+  | 'alert';
 
 @Component({
   selector: 'app-icon',
@@ -98,6 +100,8 @@ export type IconName =
         <g *ngSwitchCase="'quote'"><path d="M7 7h4v4H8c0 2 1 3 3 3v3c-3 0-6-2-6-6V7zm9 0h4v4h-3c0 2 1 3 3 3v3c-3 0-6-2-6-6V7z" fill="currentColor" stroke="none"/></g>
         <g *ngSwitchCase="'edit'"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></g>
         <g *ngSwitchCase="'camera'"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></g>
+        <g *ngSwitchCase="'refresh'"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></g>
+        <g *ngSwitchCase="'alert'"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></g>
       </ng-container>
     </svg>
   `,

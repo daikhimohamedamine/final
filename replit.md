@@ -82,3 +82,9 @@ The `/api/v1/ai/chat` endpoint is now powered by a custom agentic engine (`backe
 - `MEDECIN` → doctor mode (full clinical features incl. prescriptions/SOAP)
 - `COORDINATRICE` → coordinator mode (read-only patient lookups; cannot prescribe)
 - `ADMIN` → admin mode (read-only; cannot prescribe)
+
+### Frontend wiring (medzoon Angular AI Assistant)
+- `src/app/core/api/medassist.service.ts` — fetch+ReadableStream SSE client posting to `/ai/stream` with the JWT bearer header. Parses `event:`/`data:` frames into typed `StreamEvent`s. Falls back to the buffered `/ai/chat` JSON endpoint and synthesizes events if SSE fails. Persists `sessionId` in `localStorage` (`medzoon.medassist.session`) for conversation continuity; `resetSession()` clears it and DELETEs server-side.
+- `src/app/pages/dashboard/doctor/ai-assistant.component.*` — replaces `GeminiService`. Renders live tool-call progress chips (running/success/error) inside the assistant bubble with French labels (`Récupération du dossier patient`, `Vérification des interactions médicamenteuses`, …) and per-step inputs/results. Each completed step is expandable to show the raw JSON payload. A header refresh button starts a new conversation.
+- `src/app/shared/icon.component.ts` — added `refresh` and `alert` icons used by the assistant header and error chips.
+- `GeminiService` is no longer referenced by the doctor AI assistant; safe to delete in a follow-up.

@@ -12,13 +12,18 @@
       <div class="ai-panel__title">
         <span class="ai-panel__avatar"><app-icon name="sparkles" [size]="16"></app-icon></span>
         <div>
-          <strong>Assistant IA Médecin</strong>
-          <span>Suggestions de prescription contextualisées</span>
+          <strong>MedAssist · Assistant clinique IA</strong>
+          <span>Outils en direct · dossiers, interactions, ordonnances</span>
         </div>
       </div>
-      <button type="button" class="ai-panel__close" (click)="toggle()" aria-label="Close">
-        <app-icon name="close" [size]="18"></app-icon>
-      </button>
+      <div class="ai-panel__actions">
+        <button type="button" class="ai-panel__icon-btn" (click)="newConversation()" title="Nouvelle conversation" aria-label="Nouvelle conversation">
+          <app-icon name="refresh" [size]="16"></app-icon>
+        </button>
+        <button type="button" class="ai-panel__close" (click)="toggle()" aria-label="Close">
+          <app-icon name="close" [size]="18"></app-icon>
+        </button>
+      </div>
     </header>
 
     <div class="ai-panel__body">
@@ -26,6 +31,29 @@
         <div class="ai-msg" [class.ai-msg--user]="m.role==='user'">
           @if (m.role === 'assistant') { <span class="ai-msg__avatar"><app-icon name="sparkles" [size]="12"></app-icon></span> }
           <div class="ai-msg__bubble">
+            @if (m.steps?.length) {
+              <ul class="ai-steps">
+                @for (s of m.steps; track s.id) {
+                  <li class="ai-step ai-step--{{s.status}}">
+                    <button type="button" class="ai-step__head" (click)="toggleStepData(s)">
+                      <span class="ai-step__icon">
+                        @if (s.status === 'running') { <span class="spinner"></span> }
+                        @if (s.status === 'success') { <app-icon name="check" [size]="12"></app-icon> }
+                        @if (s.status === 'error')   { <app-icon name="alert" [size]="12"></app-icon> }
+                      </span>
+                      <span class="ai-step__label">{{ s.label }}</span>
+                      @if (s.detail) { <span class="ai-step__detail">{{ s.detail }}</span> }
+                      @if (s.status !== 'running' && s.data) {
+                        <span class="ai-step__chev">{{ isExpanded(s) ? '▾' : '▸' }}</span>
+                      }
+                    </button>
+                    @if (isExpanded(s) && s.data) {
+                      <pre class="ai-step__data">{{ formatStepData(s) }}</pre>
+                    }
+                  </li>
+                }
+              </ul>
+            }
             @if (m.text) { 
               <p [style.font-size.rem]="m.isDisclaimer ? 0.75 : 0.88" [style.color]="m.isDisclaimer ? 'var(--color-fg-soft)' : 'inherit'">
                 {{ m.text }}
@@ -57,8 +85,29 @@
       @if (thinking()) {
         <div class="ai-msg">
           <span class="ai-msg__avatar"><app-icon name="sparkles" [size]="12"></app-icon></span>
-          <div class="ai-msg__bubble ai-msg__bubble--thinking">
-            <span></span><span></span><span></span>
+          <div class="ai-msg__bubble ai-msg__bubble--live">
+            @if (liveSteps().length) {
+              <ul class="ai-steps">
+                @for (s of liveSteps(); track s.id) {
+                  <li class="ai-step ai-step--{{s.status}}">
+                    <div class="ai-step__head">
+                      <span class="ai-step__icon">
+                        @if (s.status === 'running') { <span class="spinner"></span> }
+                        @if (s.status === 'success') { <app-icon name="check" [size]="12"></app-icon> }
+                        @if (s.status === 'error')   { <app-icon name="alert" [size]="12"></app-icon> }
+                      </span>
+                      <span class="ai-step__label">{{ s.label }}</span>
+                      @if (s.detail) { <span class="ai-step__detail">{{ s.detail }}</span> }
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+            @if (!liveSteps().length) {
+              <div class="ai-msg__bubble--thinking-dots">
+                <span></span><span></span><span></span>
+              </div>
+            }
           </div>
         </div>
       }
@@ -73,7 +122,7 @@
           type="text"
           [value]="input()"
           (input)="input.set($any($event.target).value)"
-          placeholder="Ex: toux grasse, fièvre 38°, allergie pénicilline…"
+          placeholder="Ex: dossier 1234, ordonnance amoxicilline, interactions warfarine + ibuprofène…"
           [disabled]="thinking()"
         />
         <button type="submit" [disabled]="thinking() || !input().trim()">
