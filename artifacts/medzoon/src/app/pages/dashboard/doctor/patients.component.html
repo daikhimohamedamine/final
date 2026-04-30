@@ -1,6 +1,6 @@
 <div class="page-header">
   <div class="page-header__title">
-    <h1>Mes patients</h1>
+    <h1>Mes employés</h1>
     <p>Recherchez un dossier par nom, matricule, poste ou département.</p>
   </div>
   <div class="page-header__actions">
@@ -28,18 +28,18 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Patient</th>
+        <th>Employé</th>
         <th>Matricule</th>
         <th>Poste</th>
         <th>Département</th>
-        <th>Dernière visite</th>
-        <th>Vaccins</th>
+        <th>Gouvernorat</th>
+        <th>Téléphone</th>
         <th>Statut</th>
       </tr>
     </thead>
     <tbody>
       @for (p of patients(); track p.id) {
-        <tr>
+        <tr (click)="openPatient(p.id)" style="cursor: pointer;">
           <td>
             <span class="cell-user">
               <img [src]="p.avatar" [alt]="p.firstName + ' ' + p.lastName" loading="lazy"/>
@@ -49,13 +49,15 @@
               </span>
             </span>
           </td>
-          <td><code>{{ p.id }}</code></td>
+          <td><span class="tag tag--neutral">{{ p.matricule }}</span></td>
           <td>{{ p.position }}</td>
           <td>{{ p.department }}</td>
-          <td>{{ p.lastVisit }}</td>
-          <td>{{ p.vaccines }} / 6</td>
+          <td>{{ p.gouvernorat }}</td>
+          <td>{{ p.phone }}</td>
           <td>
-            <span class="tag" [class.tag--ok]="p.status==='Active'" [class.tag--neutral]="p.status==='Archived'">{{ p.status }}</span>
+            <span class="tag" [class.tag--ok]="p.status==='Active'" [class.tag--neutral]="p.status==='Archived'">
+              {{ p.status === 'Active' ? 'Actif' : 'Archivé' }}
+            </span>
           </td>
         </tr>
       }

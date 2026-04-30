@@ -34,7 +34,13 @@ export type IconName =
   | 'twitter'
   | 'instagram'
   | 'linkedin'
-  | 'quote';
+  | 'globe'
+  | 'map'
+  | 'folder'
+  | 'quote'
+  | 'briefcase'
+  | 'edit'
+  | 'camera';
 
 @Component({
   selector: 'app-icon',
@@ -86,7 +92,12 @@ export type IconName =
         <g *ngSwitchCase="'twitter'"><path d="M22 5.8a8.5 8.5 0 0 1-2.4.7 4.2 4.2 0 0 0 1.8-2.3 8.4 8.4 0 0 1-2.6 1A4.2 4.2 0 0 0 11 8.6a12 12 0 0 1-8.6-4.4 4.2 4.2 0 0 0 1.3 5.6 4.2 4.2 0 0 1-1.9-.5v.1a4.2 4.2 0 0 0 3.4 4.1 4.2 4.2 0 0 1-1.9.1 4.2 4.2 0 0 0 4 2.9A8.5 8.5 0 0 1 2 18.3a12 12 0 0 0 6.5 1.9c7.8 0 12-6.5 12-12.1v-.6A8.5 8.5 0 0 0 22 5.8Z"/></g>
         <g *ngSwitchCase="'instagram'"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></g>
         <g *ngSwitchCase="'linkedin'"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v8"/><circle cx="8" cy="7" r="1"/><path d="M12 18v-5a3 3 0 0 1 6 0v5"/></g>
+        <g *ngSwitchCase="'globe'"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20"/></g>
+        <g *ngSwitchCase="'map'"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3V6z"/><path d="M9 3v15"/><path d="M15 6v15"/></g>
+        <g *ngSwitchCase="'folder'"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></g>
         <g *ngSwitchCase="'quote'"><path d="M7 7h4v4H8c0 2 1 3 3 3v3c-3 0-6-2-6-6V7zm9 0h4v4h-3c0 2 1 3 3 3v3c-3 0-6-2-6-6V7z" fill="currentColor" stroke="none"/></g>
+        <g *ngSwitchCase="'edit'"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></g>
+        <g *ngSwitchCase="'camera'"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></g>
       </ng-container>
     </svg>
   `,

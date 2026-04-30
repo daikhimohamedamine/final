@@ -60,7 +60,23 @@
       </header>
       <div class="emp-modal__body">
         <div class="emp-form__grid">
-          <label class="emp-form__field"><span>Employee ID</span><input type="number" [value]="registerForm().employeeId" (input)="updateEmployeeId($any($event.target).value)"/></label>
+          <label class="emp-form__field">
+            <span>Employé</span>
+            <select [value]="registerForm().employeeId" (change)="updateEmployeeId($any($event.target).value)">
+              <option value="">Sélectionner un employé...</option>
+              @for (e of employees(); track e.id) {
+                <option [value]="e.id">{{ e.prenom }} {{ e.nom }} ({{ e.dossierNumber }})</option>
+              }
+            </select>
+          </label>
+          <label class="emp-form__field">
+            <span>Type de vaccin</span>
+            <select [value]="registerForm().vaccineType" (change)="updateVaccineType($any($event.target).value)">
+              @for (t of vaccineTypes(); track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </label>
           <label class="emp-form__field"><span>Date de rappel</span><input type="date" [value]="registerForm().dateEcheance" (input)="updateDateEcheance($any($event.target).value)"/></label>
         </div>
       </div>

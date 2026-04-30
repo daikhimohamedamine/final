@@ -16,7 +16,7 @@ public class NotificationController {
     private final NotificationLogRepository repository;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('COORDINATRICE','ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_COORDINATRICE','ROLE_ADMIN')")
     public List<NotificationLogEntity> list() {
         return repository.findAll();
     }

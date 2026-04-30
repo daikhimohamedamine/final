@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../../shared/icon.component';
-import { EmployeeListItem } from '../../../core/models/models';
+import { Router } from '@angular/router';
+import { EmployeeListItem, EmployeeStatus } from '../../../core/models/models';
 import { BackendApiService } from '../../../core/api/backend-api.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -15,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class PatientsComponent {
   private api = inject(BackendApiService);
+  private router = inject(Router);
   query = signal('');
   dept = signal<'All' | string>('All');
   source = signal<EmployeeListItem[]>([]);
@@ -29,16 +31,19 @@ export class PatientsComponent {
       const rows = Array.isArray(res?.content) ? res.content : Array.isArray(res) ? res : [];
       if (rows.length) {
         this.source.set(rows.map((e: any) => ({
-          id: e.dossierNumber ?? String(e.id),
+          id: String(e.id),
+          matricule: e.dossierNumber ?? '-',
           firstName: e.prenom ?? '',
           lastName: e.nom ?? '',
           position: e.posteTravail ?? '',
           department: e.departement ?? '',
           birthDate: e.dateNaissance ?? '',
+          phone: e.telephone ?? '-',
+          gouvernorat: e.gouvernorat ?? '-',
           lastVisit: '-',
           vaccines: 0,
-          status: e.statut === 'ARCHIVE' ? 'Archived' : 'Active',
-          avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=120&q=80',
+          status: (e.statut === 'ARCHIVE' ? 'Archived' : 'Active') as EmployeeStatus,
+          avatar: 'https://api.dicebear.com/7.x/initials/svg?seed=' + e.prenom + ' ' + e.nom + '&backgroundColor=3B82F6&textColor=ffffff',
         })));
       }
     } catch {}
@@ -68,9 +73,14 @@ export class PatientsComponent {
       return (
         e.firstName.toLowerCase().includes(q) ||
         e.lastName.toLowerCase().includes(q) ||
-        e.id.toLowerCase().includes(q) ||
+        (e.matricule || '').toLowerCase().includes(q) ||
         (e.position ?? '').toLowerCase().includes(q)
       );
     });
   });
+
+  openPatient(id: string) {
+    // Navigate to the dossier. The route is /dashboard/doctor/dossiers/:id
+    this.router.navigate(['/dashboard/doctor/dossiers', id]);
+  }
 }

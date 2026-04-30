@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { IconComponent, IconName } from '../../shared/icon.component';
 import { RevealDirective } from '../../shared/reveal.directive';
 
-interface Pillar { icon: IconName; title: string; body: string; }
+interface RoleCard { icon: IconName; title: string; body: string; color: string; }
 
 @Component({
   selector: 'app-security',
@@ -13,17 +13,24 @@ interface Pillar { icon: IconName; title: string; body: string; }
   styleUrl: './security.component.scss',
 })
 export class SecurityComponent {
-  pillars: Pillar[] = [
-    { icon: 'lock',     title: 'End-to-end Encryption', body: 'AES-256 at rest, TLS 1.3 in transit. Field-level encryption for the most sensitive PHI.' },
-    { icon: 'users',    title: 'Role-Based Access',     body: 'Médecin du travail and coordinatrice profiles with granular per-record permissions.' },
-    { icon: 'document', title: 'Audit Trail',           body: 'Every read, write, and export is logged immutably and exportable for inspections.' },
-    { icon: 'sparkles', title: 'GDPR + HIPAA Ready',    body: 'Data residency, right-to-be-forgotten, and BAAs available for every customer.' },
-  ];
-
-  roles = [
-    { role: 'Médecin du Travail', records: true,  edit: true,  export: true,  audit: true  },
-    { role: 'Coordinatrice',      records: true,  edit: true,  export: true,  audit: false },
-    { role: 'HR Manager',         records: false, edit: false, export: true,  audit: false },
-    { role: 'Auditor',            records: true,  edit: false, export: true,  audit: true  },
+  roleCards: RoleCard[] = [
+    {
+      icon: 'stethoscope',
+      title: 'Médecin du Travail',
+      color: '#1e3a5f',
+      body: 'Accès complet aux dossiers médicaux, consultations, examens et prescriptions de tous les employés.'
+    },
+    {
+      icon: 'shield',
+      title: 'Coordinatrice Santé',
+      color: '#06b6d4',
+      body: 'Gestion des dossiers employés, planification des visites, rappels périodiques et suivi administratif.'
+    },
+    {
+      icon: 'lock',
+      title: 'Administrateur',
+      color: '#f97316',
+      body: 'Gestion des utilisateurs, journaux d\'audit, paramètres de sécurité et conformité RGPD.'
+    }
   ];
 }

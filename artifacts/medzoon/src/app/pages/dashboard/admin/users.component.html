@@ -25,16 +25,16 @@
             </span>
           </td>
           <td>
-            <span class="tag" [class.tag--admin]="u.role==='admin'" [class.tag--coord]="u.role==='coord'" [class.tag--doctor]="u.role==='doctor'">{{ u.role }}</span>
+            <span class="tag" [class.tag--admin]="u.role==='Administrateur'" [class.tag--coord]="u.role==='Coordinatrice'" [class.tag--doctor]="u.role==='Médecin'">{{ u.role }}</span>
           </td>
           <td>
             <span class="tag" [class.tag--ok]="u.mfa" [class.tag--neutral]="!u.mfa">{{ u.mfa ? 'Activée' : 'Inactive' }}</span>
           </td>
           <td>
             <span class="tag"
-              [class.tag--ok]="u.status==='Active'"
-              [class.tag--warn]="u.status==='Pending'"
-              [class.tag--danger]="u.status==='Suspended'">{{ u.status }}</span>
+              [class.tag--ok]="u.status==='Actif'"
+              [class.tag--warn]="u.status==='En attente'"
+              [class.tag--danger]="u.status==='Suspendu'">{{ u.status }}</span>
           </td>
           <td>{{ u.last }}</td>
           <td>
@@ -65,10 +65,21 @@
         <label class="invite-modal__full"><span>Rôle</span>
           <select [value]="invite().role" (change)="updateInvite('role', $any($event.target).value)">
             <option value="COORDINATRICE">Coordinatrice médicale</option>
-            <option value="DOCTOR">Médecin du travail</option>
+            <option value="MEDECIN">Médecin du travail</option>
             <option value="ADMIN">Administrateur</option>
           </select>
         </label>
+
+        @if (invite().role === 'COORDINATRICE') {
+          <label class="invite-modal__full"><span>Médecin responsable</span>
+            <select [value]="invite().assignedMedecinId" (change)="updateInvite('assignedMedecinId', $any($event.target).value)">
+              <option [value]="null">Sélectionner un médecin</option>
+              @for (dr of doctors(); track dr.id) {
+                <option [value]="dr.id">{{ dr.name }}</option>
+              }
+            </select>
+          </label>
+        }
       </div>
       <footer>
         <button class="btn-soft" (click)="close()">Annuler</button>

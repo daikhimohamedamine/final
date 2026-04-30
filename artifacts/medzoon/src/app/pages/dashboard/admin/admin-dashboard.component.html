@@ -1,16 +1,16 @@
 <div class="page-header">
   <div class="page-header__title">
-    <h1>Welcome back, {{ user()?.firstName }}</h1>
-    <p>Here's how your organization's medical records platform is performing today.</p>
+    <h1>Ravi de vous revoir, {{ user()?.firstName }}</h1>
+    <p>Voici les performances de la plateforme de gestion médicale aujourd'hui.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft" (click)="exportReport()"><app-icon name="document" [size]="14"></app-icon> Export report</button>
-    <button class="btn btn-primary btn-sm" (click)="goUsers()"><app-icon name="plus" [size]="14"></app-icon> Invite user</button>
+    <button class="btn-soft" (click)="exportReport()"><app-icon name="document" [size]="14"></app-icon> Exporter rapport</button>
+    <button class="btn btn-primary btn-sm" (click)="goUsers()"><app-icon name="plus" [size]="14"></app-icon> Inviter utilisateur</button>
   </div>
 </div>
 
 <div class="kpi-grid">
-  @for (k of kpis; track k.label) {
+  @for (k of kpis(); track k.label) {
     <div class="kpi">
       <div>
         <div class="kpi__label">{{ k.label }}</div>
@@ -29,18 +29,18 @@
   <section class="panel">
     <div class="panel__head">
       <div class="panel__title">
-        <h2>Users &amp; Roles</h2>
-        <p>Manage access for clinicians and administrative staff.</p>
+        <h2>Utilisateurs &amp; Rôles</h2>
+        <p>Gérez les accès pour les cliniciens et le personnel administratif.</p>
       </div>
-      <button class="btn-soft" (click)="goUsers()"><app-icon name="users" [size]="14"></app-icon> Manage all</button>
+      <button class="btn-soft" (click)="goUsers()"><app-icon name="users" [size]="14"></app-icon> Tout gérer</button>
     </div>
     <table class="data-table">
       <thead>
         <tr>
-          <th>User</th>
-          <th>Role</th>
-          <th>Status</th>
-          <th>Last active</th>
+          <th>Utilisateur</th>
+          <th>Rôle</th>
+          <th>Statut</th>
+          <th>Dernière activité</th>
         </tr>
       </thead>
       <tbody>
@@ -61,7 +61,7 @@
               </span>
             </td>
             <td>
-              <span class="tag" [class.tag--ok]="u.status==='Active'" [class.tag--warn]="u.status==='Pending'">{{ u.status }}</span>
+              <span class="tag" [class.tag--ok]="u.status==='Actif'" [class.tag--warn]="u.status==='En attente'">{{ u.status }}</span>
             </td>
             <td>{{ u.last }}</td>
           </tr>
@@ -73,9 +73,9 @@
   <aside>
     <section class="panel">
       <div class="panel__head">
-        <div class="panel__title"><h2>Role Distribution</h2></div>
+        <div class="panel__title"><h2>Distribution des Rôles</h2></div>
       </div>
-      @for (r of rolesDist; track r.label) {
+      @for (r of rolesDist(); track r.label) {
         <div class="bar-row">
           <span class="bar-row__label">{{ r.label }}</span>
           <span class="bar-row__bar"><span [style.width.%]="r.pct"></span></span>
@@ -86,8 +86,8 @@
 
     <section class="panel">
       <div class="panel__head">
-        <div class="panel__title"><h2>Recent Audit Events</h2></div>
-        <button class="btn-soft" (click)="goAudit()">View log</button>
+        <div class="panel__title"><h2>Événements d'Audit Récents</h2></div>
+        <button class="btn-soft" (click)="goAudit()">Voir log</button>
       </div>
       <ul class="list">
         @for (a of auditList(); track a.time) {

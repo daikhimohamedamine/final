@@ -1,11 +1,11 @@
 <div class="page-header">
   <div class="page-header__title">
-    <h1>Good morning, Dr. {{ user()?.lastName }}</h1>
-    <p>You have 8 consultations today and 5 reports awaiting your signature.</p>
+    <h1>Bonjour, Dr. {{ user()?.lastName }}</h1>
+    <p>Vous avez {{ agendaList().length }} consultations prévues aujourd'hui.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft" (click)="openConsults()"><app-icon name="document" [size]="14"></app-icon> Sign reports</button>
-    <button class="btn btn-primary btn-sm" (click)="openConsults()"><app-icon name="plus" [size]="14"></app-icon> New consultation</button>
+    <button class="btn-soft" (click)="openConsults()"><app-icon name="document" [size]="14"></app-icon> Signer rapports</button>
+    <button class="btn btn-primary btn-sm" (click)="openConsults()"><app-icon name="plus" [size]="14"></app-icon> Nouvelle consultation</button>
   </div>
 </div>
 
@@ -28,10 +28,10 @@
   <section class="panel">
     <div class="panel__head">
       <div class="panel__title">
-        <h2>Today's Patients</h2>
-        <p>Tap a patient to open their full medical record.</p>
+        <h2>Employés d'aujourd'hui</h2>
+        <p>Cliquer sur un employé pour ouvrir son dossier médical complet.</p>
       </div>
-      <button class="btn-soft" (click)="openPatients()"><app-icon name="users" [size]="14"></app-icon> View all</button>
+      <button class="btn-soft" (click)="openPatients()"><app-icon name="users" [size]="14"></app-icon> Voir tout</button>
     </div>
     <ul class="list">
       @for (a of agendaList(); track a.id) {
@@ -42,9 +42,9 @@
             <span>{{ a.time }} — {{ a.type }}</span>
           </span>
           <span class="tag"
-            [class.tag--ok]="a.status==='Done'"
-            [class.tag--warn]="a.status==='Now'"
-            [class.tag--neutral]="a.status==='Upcoming'">{{ a.status }}</span>
+            [class.tag--ok]="a.status==='Terminé' || a.status==='DONE'"
+            [class.tag--warn]="a.status==='En cours' || a.status==='NOW'"
+            [class.tag--neutral]="a.status==='À venir' || a.status==='UPCOMING'">{{ a.status }}</span>
         </li>
       }
     </ul>
@@ -53,8 +53,8 @@
   <aside>
     <section class="panel">
       <div class="panel__head">
-        <div class="panel__title"><h2>Vaccine Alerts</h2></div>
-        <button class="btn-soft" (click)="openVaccines()">All</button>
+        <div class="panel__title"><h2>Alertes Vaccins</h2></div>
+        <button class="btn-soft" (click)="openVaccines()">Tout voir</button>
       </div>
       <ul class="list">
         @for (al of alerts; track al.patient) {
@@ -75,7 +75,7 @@
 
     <section class="panel">
       <div class="panel__head">
-        <div class="panel__title"><h2>My Performance · 30 days</h2></div>
+        <div class="panel__title"><h2>Ma Performance · 30 jours</h2></div>
       </div>
       @for (v of vitals; track v.label) {
         <div class="bar-row">

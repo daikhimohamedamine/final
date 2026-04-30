@@ -1,10 +1,11 @@
 import {
   BrowserModule,
   DomRendererFactory2
-} from "./chunk-XWRNR6NU.js";
+} from "./chunk-5XEKNLZP.js";
+import "./chunk-XXEYNNXT.js";
 import {
   DOCUMENT
-} from "./chunk-3LRZV6Z2.js";
+} from "./chunk-YYCSJY5N.js";
 import {
   ANIMATION_MODULE_TYPE,
   Inject,
@@ -19,13 +20,14 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵinject
-} from "./chunk-4XM7K22P.js";
+} from "./chunk-J5I2SJBH.js";
+import "./chunk-BW5YVS4F.js";
 import {
   __objRest,
   __spreadValues
-} from "./chunk-SZPMUFGN.js";
+} from "./chunk-3OV72XIM.js";
 
-// ../../node_modules/.pnpm/@angular+animations@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zo_b18b2dabdfe6198d9ed760ffb18313bf/node_modules/@angular/animations/fesm2022/private_export-faY_wCkZ.mjs
+// ../../node_modules/.pnpm/@angular+animations@19.2.21_b18b2dabdfe6198d9ed760ffb18313bf/node_modules/@angular/animations/fesm2022/private_export-faY_wCkZ.mjs
 var AnimationMetadataType;
 (function(AnimationMetadataType2) {
   AnimationMetadataType2[AnimationMetadataType2["State"] = 0] = "State";
@@ -280,7 +282,7 @@ var AnimationGroupPlayer = class {
 };
 var ɵPRE_STYLE = "!";
 
-// ../../node_modules/.pnpm/@angular+animations@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zo_b18b2dabdfe6198d9ed760ffb18313bf/node_modules/@angular/animations/fesm2022/util-D9FfmVnv.mjs
+// ../../node_modules/.pnpm/@angular+animations@19.2.21_b18b2dabdfe6198d9ed760ffb18313bf/node_modules/@angular/animations/fesm2022/util-D9FfmVnv.mjs
 var LINE_START = "\n - ";
 function invalidTimingValue(exp) {
   return new RuntimeError(3e3, ngDevMode && `The provided timing value "${exp}" is invalid.`);
@@ -736,7 +738,7 @@ function computeStyle(element, prop) {
   return window.getComputedStyle(element)[prop];
 }
 
-// ../../node_modules/.pnpm/@angular+animations@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zo_b18b2dabdfe6198d9ed760ffb18313bf/node_modules/@angular/animations/fesm2022/browser.mjs
+// ../../node_modules/.pnpm/@angular+animations@19.2.21_b18b2dabdfe6198d9ed760ffb18313bf/node_modules/@angular/animations/fesm2022/browser.mjs
 var NoopAnimationDriver = class _NoopAnimationDriver {
   /**
    * @returns Whether `prop` is a valid CSS property
@@ -4285,7 +4287,7 @@ var AnimationRendererFactory = class {
   }
 };
 
-// ../../node_modules/.pnpm/@angular+platform-browser@19.2.21_@angular+animations@19.2.21_@angular+common@19.2.21_@_23314ef80668c302d8dcb00cb43e7384/node_modules/@angular/platform-browser/fesm2022/animations.mjs
+// ../../node_modules/.pnpm/@angular+platform-browser@1_23314ef80668c302d8dcb00cb43e7384/node_modules/@angular/platform-browser/fesm2022/animations.mjs
 var InjectableAnimationEngine = class _InjectableAnimationEngine extends AnimationEngine {
   // The `ApplicationRef` is injected here explicitly to force the dependency ordering.
   // Since the `ApplicationRef` should be created earlier before the `AnimationEngine`, they

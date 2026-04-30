@@ -20,12 +20,18 @@ export class AdminDashboardComponent {
   usersList = signal<any[]>([]);
   auditList = signal<any[]>([]);
 
-  kpis = [
-    { label: 'Active Users',     value: '...',   delta: 'Loading',  up: true,  icon: 'users' as const },
-    { label: 'Records Stored',   value: '...',   delta: 'Loading',  icon: 'document' as const },
-    { label: 'Open Audit Items', value: '...',   delta: 'Loading',  up: true,  icon: 'shield' as const },
-    { label: 'Storage Used',     value: '...',   delta: 'Loading',  up: false, icon: 'chart' as const },
-  ];
+  kpis = signal([
+    { label: 'Utilisateurs Actifs', value: '...', delta: 'Chargement', up: true, icon: 'users' as const },
+    { label: 'Dossiers Médicaux',   value: '...', delta: 'Chargement', up: true, icon: 'document' as const },
+    { label: 'Logs Audit',          value: '...', delta: 'Chargement', up: false, icon: 'shield' as const },
+    { label: 'Stockage Utilisé',    value: '...', delta: 'Chargement', up: false, icon: 'chart' as const },
+  ]);
+
+  rolesDist = signal([
+    { label: 'Médecins',       pct: 0 },
+    { label: 'Coordinatrices', pct: 0 },
+    { label: 'Administrateurs',pct: 0 },
+  ]);
 
   constructor() {
     this.load();
@@ -33,9 +39,10 @@ export class AdminDashboardComponent {
 
   async load() {
     try {
-      const [users, logs] = await Promise.all([
+      const [users, logs, stats] = await Promise.all([
         firstValueFrom(this.api.adminUsers()),
-        firstValueFrom(this.api.adminAuditLogs())
+        firstValueFrom(this.api.adminAuditLogs()),
+        firstValueFrom(this.api.adminStats())
       ]);
       this.usersList.set(users.map((u: any) => ({
         name: `${u.prenom} ${u.nom}`,
@@ -52,15 +59,21 @@ export class AdminDashboardComponent {
         time: l.timestamp,
         level: 'ok'
       })));
+
+      this.kpis.set([
+        { label: 'Utilisateurs Actifs', value: stats.activeUsers + '', delta: `sur ${stats.totalUsers}`, up: true, icon: 'users' as const },
+        { label: 'Dossiers Médicaux',   value: stats.recordsStored + '', delta: 'Actifs', up: true, icon: 'document' as const },
+        { label: 'Logs Audit',          value: stats.openAuditItems + '', delta: 'Récent', up: false, icon: 'shield' as const },
+        { label: 'Stockage Utilisé',    value: stats.storageUsed, delta: 'Capacité', up: false, icon: 'chart' as const },
+      ]);
+
+      this.rolesDist.set([
+        { label: 'Médecins',       pct: stats.roleDistDoctors },
+        { label: 'Coordinatrices', pct: stats.roleDistCoords },
+        { label: 'Administrateurs',pct: stats.roleDistAdmins },
+      ]);
     } catch {}
   }
-
-  rolesDist = [
-    { label: 'Doctors',         pct: 45 },
-    { label: 'Coordinatrices',  pct: 32 },
-    { label: 'HR Managers',     pct: 15 },
-    { label: 'Administrators',  pct: 8  },
-  ];
 
   goUsers() { this.router.navigateByUrl('/dashboard/admin/users'); }
   goAudit() { this.router.navigateByUrl('/dashboard/admin/audit'); }

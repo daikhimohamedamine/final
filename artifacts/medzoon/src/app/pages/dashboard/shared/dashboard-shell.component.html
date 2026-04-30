@@ -13,13 +13,13 @@
           </defs>
         </svg>
       </span>
-      <span class="dash__brand-text">Medzoon</span>
+      <span class="dash__brand-text">MediCab</span>
     </a>
 
     @if (user(); as u) {
       <div class="dash__role-chip" [attr.data-role]="u.role">
         <app-icon name="shield" [size]="12"></app-icon>
-        {{ ROLE_LABELS[u.role] }}
+        {{ getRoleLabel(u.role) }}
       </div>
     }
 
@@ -34,6 +34,9 @@
         >
           <app-icon [name]="item.icon" [size]="18"></app-icon>
           <span>{{ item.label }}</span>
+          @if (item.label === 'Planning' && state.tomorrowAppointmentsCount() > 0) {
+            <span class="dash__nav-badge">{{ state.tomorrowAppointmentsCount() }}</span>
+          }
         </a>
       }
     </nav>
@@ -42,8 +45,8 @@
       <div class="dash__upgrade">
         <app-icon name="sparkles" [size]="18"></app-icon>
         <div>
-          <strong>Need more seats?</strong>
-          <p>Invite your team and assign roles in seconds.</p>
+          <strong>Besoin de plus de sièges ?</strong>
+          <p>Invitez votre équipe et gérez les rôles en un clic.</p>
         </div>
       </div>
     </div>
@@ -61,7 +64,7 @@
         </button>
         <div class="dash__search">
           <app-icon name="document" [size]="16"></app-icon>
-          <input type="search" placeholder="Search employees, records, visits…"/>
+          <input type="search" placeholder="Rechercher employés, dossiers, visites…"/>
           <kbd>⌘K</kbd>
         </div>
       </div>
@@ -69,13 +72,17 @@
       <div class="dash__topbar-right">
         <button class="dash__icon-btn" type="button" aria-label="Notifications" (click)="openNotifications()">
           <app-icon name="bell" [size]="18"></app-icon>
-          <span class="dash__badge">3</span>
+          @if (notificationCount() > 0) {
+            <span class="dash__badge">{{ notificationCount() }}</span>
+          }
         </button>
 
         @if (user(); as u) {
           <div class="dash__user-menu">
             <button type="button" class="dash__user" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen()">
-              <img [src]="u.avatar" [alt]="u.firstName + ' ' + u.lastName" loading="lazy"/>
+              <div class="user-avatar user-avatar--sm" style="background: var(--color-primary); color: #fff;">
+                {{ u.firstName.charAt(0) }}{{ u.lastName.charAt(0) }}
+              </div>
               <div class="dash__user-text">
                 <strong>{{ u.firstName }} {{ u.lastName }}</strong>
                 <span>{{ u.title }}</span>
@@ -87,15 +94,15 @@
                   <strong>{{ u.firstName }} {{ u.lastName }}</strong>
                   <span>{{ u.email }}</span>
                 </div>
-                <button type="button" class="dash__user-dropdown-item" (click)="closeMenu()">
-                  <app-icon name="users" [size]="14"></app-icon> My profile
+                <button type="button" class="dash__user-dropdown-item" (click)="openProfile()">
+                  <app-icon name="users" [size]="14"></app-icon> Mon profil
                 </button>
-                <button type="button" class="dash__user-dropdown-item" (click)="closeMenu()">
-                  <app-icon name="lock" [size]="14"></app-icon> Security
+                <button type="button" class="dash__user-dropdown-item" (click)="openSecurity()">
+                  <app-icon name="lock" [size]="14"></app-icon> Sécurité
                 </button>
                 <hr/>
                 <button type="button" class="dash__user-dropdown-item dash__user-dropdown-item--danger" (click)="signOut()">
-                  <app-icon name="close" [size]="14"></app-icon> Sign out
+                  <app-icon name="close" [size]="14"></app-icon> Déconnexion
                 </button>
               </div>
             }
@@ -117,7 +124,9 @@
     </main>
   </div>
 
-  @if (user()?.role === 'doctor') {
+  @if (user()) {
     <app-ai-assistant/>
   }
+
 </div>
+

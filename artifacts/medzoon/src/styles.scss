@@ -1,18 +1,18 @@
 /* =========================================================
-   Medzoon — Design System
+   MediCab — Design System
    ========================================================= */
 
 :root {
   /* Brand */
-  --color-primary: #1E3A8A;
-  --color-primary-600: #1d3a8a;
-  --color-primary-500: #2563EB;
-  --color-primary-400: #3B82F6;
-  --color-primary-100: #DBEAFE;
-  --color-primary-50:  #EFF6FF;
+  --color-primary: #1e3a5f;
+  --color-primary-600: #1a3252;
+  --color-primary-500: #1e3a5f;
+  --color-primary-400: #2b5286;
+  --color-primary-100: #e2e8f0;
+  --color-primary-50:  #f1f5f9;
 
-  --color-accent: #06B6D4;
-  --color-accent-soft: #CFFAFE;
+  --color-accent: #f97316;
+  --color-accent-soft: #ffedd5;
 
   /* Neutrals */
   --color-bg: #FFFFFF;
@@ -146,7 +146,7 @@ p  { margin: 0; color: var(--color-fg-muted); }
 .bg-soft   { background: var(--color-bg-soft); }
 .bg-muted  { background: var(--color-bg-muted); }
 .bg-primary {
-  background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 60%, #3B82F6 100%);
+  background: linear-gradient(135deg, #1e3a5f 0%, #2b5286 60%, #3b6ba5 100%);
   color: #fff;
 }
 .text-primary { color: var(--color-primary); }
@@ -185,7 +185,7 @@ p  { margin: 0; color: var(--color-fg-muted); }
   outline-offset: 2px;
 }
 .btn-primary {
-  background: linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%);
+  background: linear-gradient(135deg, #1e3a5f 0%, #1a3252 100%);
   color: #fff;
   box-shadow: var(--shadow-blue);
 }
@@ -308,4 +308,31 @@ p  { margin: 0; color: var(--color-fg-muted); }
   background: #06B6D4;
   bottom: -200px;
   left: -120px;
+}
+
+/* User Avatar Utility */
+.user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--color-primary-50);
+  color: var(--color-primary);
+  font-weight: 700;
+  font-family: var(--font-display);
+  overflow: hidden;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  border: 1px solid var(--color-border);
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &--sm { width: 32px; height: 32px; font-size: 0.75rem; }
+  &--md { width: 44px; height: 44px; font-size: 0.95rem; }
+  &--lg { width: 80px; height: 80px; font-size: 1.6rem; }
+  &--xl { width: 120px; height: 120px; font-size: 2.4rem; }
 }

@@ -1,16 +1,16 @@
 <div class="page-header">
   <div class="page-header__title">
     <h1>Bonjour {{ user()?.firstName }}</h1>
-    <p>Your visits, reminders and follow-ups for today.</p>
+    <p>Vos visites, rappels et suivis pour aujourd'hui.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft" (click)="openReminders()"><app-icon name="bell" [size]="14"></app-icon> Send reminders</button>
-    <button class="btn btn-primary btn-sm" (click)="openSchedule()"><app-icon name="plus" [size]="14"></app-icon> Schedule visit</button>
+    <button class="btn-soft" (click)="openReminders()"><app-icon name="bell" [size]="14"></app-icon> Envoyer rappels</button>
+    <button class="btn btn-primary btn-sm" (click)="openSchedule()"><app-icon name="plus" [size]="14"></app-icon> Planifier visite</button>
   </div>
 </div>
 
 <div class="kpi-grid">
-  @for (k of kpis; track k.label) {
+  @for (k of kpis(); track k.label) {
     <div class="kpi">
       <div>
         <div class="kpi__label">{{ k.label }}</div>
@@ -28,19 +28,19 @@
   <section class="panel">
     <div class="panel__head">
       <div class="panel__title">
-        <h2>Today's Schedule</h2>
-        <p>Friday, April 24 — 6 visits planned</p>
+        <h2>Agenda du jour</h2>
+        <p>Aujourd'hui — {{ scheduleList().length }} visite(s) prévue(s)</p>
       </div>
-      <button class="btn-soft" (click)="openSchedule()"><app-icon name="calendar" [size]="14"></app-icon> Open calendar</button>
+      <button class="btn-soft" (click)="openSchedule()"><app-icon name="calendar" [size]="14"></app-icon> Ouvrir l'agenda</button>
     </div>
     <table class="data-table">
       <thead>
         <tr>
-          <th>Time</th>
-          <th>Employee</th>
-          <th>Visit type</th>
-          <th>Clinician</th>
-          <th>Status</th>
+          <th>Heure</th>
+          <th>Employé</th>
+          <th>Type de visite</th>
+          <th>Praticien</th>
+          <th>Statut</th>
         </tr>
       </thead>
       <tbody>
@@ -65,8 +65,8 @@
   <aside>
     <section class="panel">
       <div class="panel__head">
-        <div class="panel__title"><h2>Upcoming Reminders</h2></div>
-        <button class="btn-soft" (click)="openReminders()">All</button>
+        <div class="panel__title"><h2>Rappels à venir</h2></div>
+        <button class="btn-soft" (click)="openReminders()">Tout voir</button>
       </div>
       <ul class="list">
         @for (r of reminders; track r.who) {
@@ -86,10 +86,10 @@
 
     <section class="panel">
       <div class="panel__head">
-        <div class="panel__title"><h2>Compliance by Department</h2></div>
+        <div class="panel__title"><h2>Conformité par Département</h2></div>
       </div>
-      <div class="bar-row"><span class="bar-row__label">Operations</span><span class="bar-row__bar"><span style="width: 99%"></span></span><span class="bar-row__value">99%</span></div>
-      <div class="bar-row"><span class="bar-row__label">Logistics</span><span class="bar-row__bar"><span style="width: 96%"></span></span><span class="bar-row__value">96%</span></div>
+      <div class="bar-row"><span class="bar-row__label">Opérations</span><span class="bar-row__bar"><span style="width: 99%"></span></span><span class="bar-row__value">99%</span></div>
+      <div class="bar-row"><span class="bar-row__label">Logistique</span><span class="bar-row__bar"><span style="width: 96%"></span></span><span class="bar-row__value">96%</span></div>
       <div class="bar-row"><span class="bar-row__label">R&amp;D</span><span class="bar-row__bar"><span style="width: 92%"></span></span><span class="bar-row__value">92%</span></div>
       <div class="bar-row"><span class="bar-row__label">Sales</span><span class="bar-row__bar"><span style="width: 88%"></span></span><span class="bar-row__value">88%</span></div>
     </section>

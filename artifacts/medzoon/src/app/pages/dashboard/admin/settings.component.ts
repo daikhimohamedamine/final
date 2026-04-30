@@ -15,16 +15,16 @@ import { firstValueFrom } from 'rxjs';
 })
 export class AdminSettingsComponent {
   private api = inject(BackendApiService);
-  org = signal({ name: 'Medzoon Health', siret: '812 345 678 00012', address: '14 rue de la Santé, 75013 Paris', tz: 'Europe/Paris' });
+  org = signal({ name: 'MediCab Tunisie', siret: '1234567/A/M/000', address: 'Avenue Habib Bourguiba, Tunis 1000', tz: 'Africa/Tunis' });
   retention = signal({ medical: 50, audit: 6, attachments: 25 });
   security  = signal({ mfa: true, sso: false, ipFilter: false, lockoutMin: 15 });
   drugFile = signal<File | null>(null);
   importStatus = signal<string>('');
 
   save() {
-    localStorage.setItem('medzoon.settings.org', JSON.stringify(this.org()));
-    localStorage.setItem('medzoon.settings.retention', JSON.stringify(this.retention()));
-    localStorage.setItem('medzoon.settings.security', JSON.stringify(this.security()));
+    localStorage.setItem('MediCab.settings.org', JSON.stringify(this.org()));
+    localStorage.setItem('MediCab.settings.retention', JSON.stringify(this.retention()));
+    localStorage.setItem('MediCab.settings.security', JSON.stringify(this.security()));
   }
 
   onDrugFileSelected(event: Event) {
@@ -47,5 +47,12 @@ export class AdminSettingsComponent {
     } catch (e: any) {
       this.importStatus.set(`Import failed: ${e?.message ?? 'unknown error'}`);
     }
+  }
+
+  triggerBackup() {
+    this.importStatus.set('Préparation de la sauvegarde SQL... (MOCK)');
+    setTimeout(() => {
+      this.importStatus.set('Sauvegarde terminée : backup_db_tunisia_2024.sql');
+    }, 1500);
   }
 }

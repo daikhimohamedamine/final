@@ -31,7 +31,8 @@ export class AdminUsersComponent {
   ]);
 
   showInvite = signal(false);
-  invite = signal({ firstName: '', lastName: '', email: '', password: '', role: 'COORDINATRICE' });
+  invite = signal({ firstName: '', lastName: '', email: '', password: '', role: 'COORDINATRICE', assignedMedecinId: null as number | null });
+  doctors = signal<any[]>([]);
 
   constructor() {
     this.loadUsers();
@@ -45,11 +46,18 @@ export class AdminUsersComponent {
           id: u.id,
           name: `${u.prenom ?? ''} ${u.nom ?? ''}`.trim(),
           email: u.email,
-          role: (u.role ?? 'COORDINATRICE').toLowerCase().replace('coordinatrice', 'coord'),
-          status: u.enabled ? 'Active' : 'Suspended',
+          role: u.role === 'ADMIN' ? 'Administrateur' : u.role === 'COORDINATRICE' ? 'Coordinatrice' : 'Médecin',
+          status: u.enabled ? 'Actif' : 'Suspendu',
           mfa: true,
-          last: 'Now',
+          last: 'En ligne',
           avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80',
+          assignedMedecinId: u.assignedMedecinId
+        })));
+
+        // Extract doctors for the dropdown
+        this.doctors.set(rows.filter((u: any) => u.role === 'MEDECIN').map((u: any) => ({
+          id: u.id,
+          name: `Dr. ${u.prenom} ${u.nom}`
         })));
       }
     } catch {
@@ -71,12 +79,13 @@ export class AdminUsersComponent {
         prenom: v.firstName,
         role: v.role,
         enabled: true,
+        assignedMedecinId: v.role === 'COORDINATRICE' ? v.assignedMedecinId : null
       }));
       await this.loadUsers();
       this.close();
-      this.feedback.success('User invited successfully.');
+      this.feedback.success('Utilisateur invité avec succès.');
     } catch {
-      this.feedback.error('Failed to invite user.');
+      this.feedback.error("Échec de l'invitation.");
     }
   }
 
@@ -91,7 +100,7 @@ export class AdminUsersComponent {
     }
   }
 
-  updateInvite(key: string, value: string) {
+  updateInvite(key: string, value: any) {
     this.invite.update(i => ({ ...i, [key]: value }));
   }
 }

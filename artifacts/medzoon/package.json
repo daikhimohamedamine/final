@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "ng serve --host 0.0.0.0 --port 4200 --disable-host-check --poll 2000",
+    "dev": "ng serve --host 0.0.0.0 --port 56300 --disable-host-check --poll 2000",
     "build": "ng build",
-    "serve": "ng serve --host 0.0.0.0 --port 4200 --disable-host-check",
+    "serve": "ng serve --host 0.0.0.0 --port 56300 --disable-host-check",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -17,6 +17,9 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@google/generative-ai": "^0.24.1",
+    "@types/pdfmake": "^0.3.2",
+    "pdfmake": "^0.3.7",
     "rxjs": "~7.8.0",
     "tslib": "^2.6.2",
     "zone.js": "~0.15.0"

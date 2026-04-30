@@ -1,9 +1,9 @@
 <section class="section" id="testimonials" aria-labelledby="testi-title">
   <div class="container">
     <div class="section-head" appReveal>
-      <span class="eyebrow">Patient Voices</span>
-      <h2 id="testi-title">What Clinicians Say</h2>
-      <p>Trusted by occupational health teams across hospitals, factories and public agencies.</p>
+      <span class="eyebrow">Témoignages</span>
+      <h2 id="testi-title">Ce que disent les cliniciens</h2>
+      <p>Approuvé par les équipes de santé au travail dans les hôpitaux, les usines et les agences publiques.</p>
     </div>
 
     <div class="testi__stage" appReveal>
@@ -14,7 +14,7 @@
           <blockquote class="testi__card">
             <p>{{ t.quote }}</p>
             <footer>
-              <img [src]="t.photo" [alt]="'Portrait of ' + t.name" loading="lazy"/>
+              <img [src]="t.photo" [alt]="'Portrait de ' + t.name" loading="lazy"/>
               <div>
                 <strong>{{ t.name }}</strong>
                 <span>{{ t.role }}</span>
@@ -24,7 +24,7 @@
         }
       }
 
-      <div class="testi__dots" role="tablist" aria-label="Choose a testimonial">
+      <div class="testi__dots" role="tablist" aria-label="Choisir un témoignage">
         @for (t of items; track t.name; let i = $index) {
           <button
             type="button"
@@ -32,7 +32,7 @@
             [attr.aria-selected]="i === active()"
             [class.is-active]="i === active()"
             (click)="go(i)"
-            [attr.aria-label]="'Show testimonial ' + (i+1)"
+            [attr.aria-label]="'Afficher le témoignage ' + (i+1)"
           ></button>
         }
       </div>

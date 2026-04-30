@@ -1,83 +1,21 @@
 <section class="section bg-soft" id="security" aria-labelledby="security-title">
-  <div class="container security__grid">
-    <div class="security__intro" appReveal>
-      <span class="eyebrow">Security &amp; Compliance</span>
-      <h2 id="security-title">
-        Trust isn't a feature.<br/>
-        <span class="text-primary">It's the foundation.</span>
-      </h2>
-      <p>
-        Medzoon was built from day one for medical-grade compliance — encrypted at every
-        layer, audited continuously, and structured for the strictest regulatory regimes.
-      </p>
-
-      <div class="security__pillars" appReveal="group">
-        @for (p of pillars; track p.title) {
-          <div class="security__pillar">
-            <div class="security__pillar-icon"><app-icon [name]="p.icon" [size]="22"></app-icon></div>
-            <div>
-              <h4>{{ p.title }}</h4>
-              <p>{{ p.body }}</p>
-            </div>
-          </div>
-        }
-      </div>
+  <div class="container">
+    <div class="section-head" appReveal>
+      <span class="eyebrow">Profils d'Accès</span>
+      <h2 id="security-title">Gestion des Rôles &amp; <span class="text-primary">Confidentialité</span></h2>
+      <p>Des accès sécurisés et cloisonnés pour garantir la protection des données de santé de chaque employé COFICAB.</p>
     </div>
 
-    <aside class="security__matrix card" appReveal aria-labelledby="rbac-title">
-      <header class="security__matrix-head">
-        <h3 id="rbac-title">Role-Based Access Matrix</h3>
-        <span class="security__chip"><app-icon name="shield" [size]="14"></app-icon> Live</span>
-      </header>
-      <table class="security__table">
-        <thead>
-          <tr>
-            <th scope="col">Role</th>
-            <th scope="col">Records</th>
-            <th scope="col">Edit</th>
-            <th scope="col">Export</th>
-            <th scope="col">Audit</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (r of roles; track r.role) {
-            <tr>
-              <th scope="row">{{ r.role }}</th>
-              <td>
-                <span class="cell" [class.cell--on]="r.records" [class.cell--off]="!r.records">
-                  <app-icon [name]="r.records ? 'check' : 'close'" [size]="14"></app-icon>
-                </span>
-              </td>
-              <td>
-                <span class="cell" [class.cell--on]="r.edit" [class.cell--off]="!r.edit">
-                  <app-icon [name]="r.edit ? 'check' : 'close'" [size]="14"></app-icon>
-                </span>
-              </td>
-              <td>
-                <span class="cell" [class.cell--on]="r.export" [class.cell--off]="!r.export">
-                  <app-icon [name]="r.export ? 'check' : 'close'" [size]="14"></app-icon>
-                </span>
-              </td>
-              <td>
-                <span class="cell" [class.cell--on]="r.audit" [class.cell--off]="!r.audit">
-                  <app-icon [name]="r.audit ? 'check' : 'close'" [size]="14"></app-icon>
-                </span>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-
-      <div class="security__notes">
-        <div class="security__note">
-          <app-icon name="bell" [size]="16"></app-icon>
-          <span>Real-time notifications when access policies change.</span>
-        </div>
-        <div class="security__note">
-          <app-icon name="document" [size]="16"></app-icon>
-          <span>Every change is recorded in an immutable audit log.</span>
-        </div>
-      </div>
-    </aside>
+    <div class="grid grid-3 security__roles" appReveal="group">
+      @for (r of roleCards; track r.title) {
+        <article class="role__card card">
+          <div class="role__icon" [style.background-color]="r.color">
+            <app-icon [name]="r.icon" [size]="24"></app-icon>
+          </div>
+          <h3>{{ r.title }}</h3>
+          <p>{{ r.body }}</p>
+        </article>
+      }
+    </div>
   </div>
 </section>

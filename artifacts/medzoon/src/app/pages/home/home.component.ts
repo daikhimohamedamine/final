@@ -6,6 +6,7 @@ import { StatsComponent } from '../../sections/stats/stats.component';
 import { ProcessComponent } from '../../sections/process/process.component';
 import { TeamComponent } from '../../sections/team/team.component';
 import { SecurityComponent } from '../../sections/security/security.component';
+import { MapComponent } from '../../sections/map/map.component';
 import { TestimonialsComponent } from '../../sections/testimonials/testimonials.component';
 import { CtaComponent } from '../../sections/cta/cta.component';
 
@@ -20,6 +21,7 @@ import { CtaComponent } from '../../sections/cta/cta.component';
     ProcessComponent,
     TeamComponent,
     SecurityComponent,
+    MapComponent,
     TestimonialsComponent,
     CtaComponent,
   ],
@@ -34,6 +36,7 @@ import { CtaComponent } from '../../sections/cta/cta.component';
     <app-security/>
     <app-testimonials/>
     <app-cta/>
+    <app-map/>
   `,
 })
 export class HomeComponent {}

@@ -6,5 +6,4 @@ import jakarta.validation.constraints.NotNull;
 public record AiRecommendRequest(
         @NotNull Long employeeId,
         @NotBlank String symptoms
-) {
-}
+) {}

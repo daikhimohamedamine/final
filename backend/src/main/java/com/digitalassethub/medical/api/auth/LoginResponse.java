@@ -5,6 +5,11 @@ public record LoginResponse(
         String refreshToken,
         String role,
         String nom,
-        String prenom
+        String prenom,
+        boolean requires2fa,
+        Long assignedMedecinId
 ) {
+    public static LoginResponse requiresTwoFactor() {
+        return new LoginResponse(null, null, null, null, null, true, null);
+    }
 }

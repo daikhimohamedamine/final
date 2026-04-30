@@ -19,6 +19,8 @@ export class LoginComponent {
 
   email = signal('');
   password = signal('');
+  verificationCode = signal('');
+  show2fa = signal(false);
   error = signal<string | null>(null);
   loading = signal(false);
   ROLE_LABELS = ROLE_LABELS;
@@ -28,6 +30,25 @@ export class LoginComponent {
     this.error.set(null);
     this.loading.set(true);
     const result = await this.auth.signIn(this.email(), this.password());
+    this.loading.set(false);
+    if (!result.ok) {
+      this.error.set(result.error);
+      return;
+    }
+    
+    if (result.requires2fa) {
+      this.show2fa.set(true);
+      return;
+    }
+
+    this.router.navigateByUrl(this.auth.homeForRole(result.user.role));
+  }
+
+  async submit2fa(event: Event) {
+    event.preventDefault();
+    this.error.set(null);
+    this.loading.set(true);
+    const result = await this.auth.verify2fa(this.email(), this.verificationCode());
     this.loading.set(false);
     if (!result.ok) {
       this.error.set(result.error);

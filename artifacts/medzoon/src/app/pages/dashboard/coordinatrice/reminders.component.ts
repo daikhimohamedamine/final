@@ -1,13 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../../shared/icon.component';
 import { BackendApiService } from '../../../core/api/backend-api.service';
 import { FeedbackService } from '../../../core/ui/feedback.service';
 import { firstValueFrom } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-coord-reminders',
   standalone: true,
-  imports: [IconComponent],
+  imports: [CommonModule, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './reminders.component.html',
   styleUrls: ['../shared/dash-ui.scss', './reminders.component.scss'],
@@ -15,25 +17,35 @@ import { firstValueFrom } from 'rxjs';
 export class CoordRemindersComponent {
   private api = inject(BackendApiService);
   private feedback = inject(FeedbackService);
-  upcoming = signal([
-    { id: 1, employee: 'Marc Lefèvre',     reason: 'Visite périodique annuelle', due: 'Dans 3 jours',  level: 'warn' },
-    { id: 2, employee: 'Camille Beaulieu', reason: 'Annual check overdue',       due: '5 jours de retard', level: 'danger' },
-    { id: 3, employee: 'Hugo Martin',      reason: 'Audiométrie recommandée',    due: 'Dans 12 jours', level: 'ok' },
-    { id: 4, employee: 'Elena Rossi',      reason: 'Spirométrie programmée',     due: 'Demain',        level: 'ok' },
-    { id: 5, employee: 'Tomas Reyes',      reason: 'Visite de reprise',          due: 'Dans 2 jours',  level: 'warn' },
-    { id: 6, employee: 'Sofia Andersen',   reason: 'Vaccination Hep B',          due: 'Dans 8 jours',  level: 'ok' },
-  ]);
-
-  history = signal([
-    { date: '23/04 14:05', who: '12 employés', subject: 'Rappel Tdap',          channel: 'Email', status: 'Envoyé' },
-    { date: '22/04 09:18', who: 'Marc Lefèvre',subject: 'Visite périodique',    channel: 'Email', status: 'Envoyé' },
-    { date: '21/04 16:42', who: 'Naima Khelifa',subject: 'Convocation spontanée',channel: 'Email', status: 'Échec' },
-    { date: '20/04 10:00', who: '8 employés',  subject: 'Rappel Hépatite B',    channel: 'Email', status: 'Envoyé' },
-  ]);
+  private http = inject(HttpClient);
+  upcoming = signal<any[]>([]);
+  history = signal<any[]>([]);
+  employees = signal<any[]>([]);
+  empSearch = signal('');
+  
   showCreate = signal(false);
   createForm = signal({
-    employeeId: '',
-    dateEcheance: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+    employeeId: null as number | null,
+    employeeEmail: '',
+    type: 'Visite périodique annuelle',
+    message: '',
+    dueDate: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+    time: '10:00',
+    sendEmailNow: true
+  });
+
+  selectedEmployee = computed(() => {
+    const id = this.createForm().employeeId;
+    return this.employees().find(e => e.id === id) || null;
+  });
+
+  filteredEmployees = computed(() => {
+    const q = this.empSearch().toLowerCase().trim();
+    if (!q) return [];
+    return this.employees().filter(e => 
+      `${e.prenom} ${e.nom}`.toLowerCase().includes(q) || 
+      (e.dossierNumber || '').toLowerCase().includes(q)
+    ).slice(0, 8);
   });
 
   constructor() {
@@ -42,22 +54,35 @@ export class CoordRemindersComponent {
 
   async load() {
     try {
-      const from = new Date();
-      const to = new Date();
-      to.setDate(to.getDate() + 30);
-      const reminders = await firstValueFrom(this.api.reminders(from.toISOString().slice(0, 10), to.toISOString().slice(0, 10)));
-      if (Array.isArray(reminders)) {
-        this.upcoming.set(reminders.map((r: any) => ({
+      const now = new Date();
+      const from = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10);
+      const to = new Date(now.getFullYear(), now.getMonth() + 3, 0).toISOString().slice(0, 10);
+
+      const [rems, emps, notes] = await Promise.all([
+        firstValueFrom(this.api.reminders(from, to)),
+        firstValueFrom(this.api.employees()),
+        firstValueFrom(this.api.notifications())
+      ]);
+
+      const empContent = Array.isArray(emps) ? emps : (emps?.content || []);
+      this.employees.set(empContent);
+      
+      const rows = Array.isArray(rems) ? rems : (Array.isArray(rems?.content) ? rems.content : []);
+      this.upcoming.set(rows.map((r: any) => {
+        const emp = empContent.find((e: any) => e.id === r.employeeId);
+        return {
           id: r.id,
-          employee: `Employee #${r.employeeId}`,
-          reason: r.type,
-          due: r.dateEcheance,
-          level: r.envoye ? 'ok' : 'warn',
-        })));
-      }
-      const notifications = await firstValueFrom(this.api.notifications());
-      if (Array.isArray(notifications)) {
-        this.history.set(notifications.map((n: any) => ({
+          employeeName: emp ? `${emp.prenom} ${emp.nom}` : `Employé #${r.employeeId}`,
+          employeeEmail: r.employeeEmail || emp?.email || null,
+          type: r.type,
+          dueDate: r.dueDate || r.dateEcheance,
+          sent: r.envoye || r.sent,
+          status: this.getReminderStatus(r)
+        };
+      }));
+
+      if (Array.isArray(notes)) {
+        this.history.set(notes.map((n: any) => ({
           date: n.dateEnvoi,
           who: n.destinataireEmail,
           subject: n.sujet,
@@ -65,44 +90,109 @@ export class CoordRemindersComponent {
           status: n.statut === 'SUCCESS' ? 'Envoyé' : 'Échec',
         })));
       }
-    } catch {
-      this.feedback.error('Failed to load reminders/notifications.');
+    } catch (err) {
+      console.error(err);
+      this.feedback.error('Impossible de charger les rappels.');
     }
   }
 
-  async sendAll() {
-    for (const r of this.upcoming()) {
-      try {
-        await firstValueFrom(this.api.sendReminder(r.id));
-      } catch {
-        this.feedback.error(`Failed to send reminder #${r.id}`);
-      }
+  private getReminderStatus(r: any) {
+    if (r.envoye || r.sent) return 'Envoyé';
+    const due = new Date(r.dueDate || r.dateEcheance);
+    const now = new Date();
+    now.setHours(0,0,0,0);
+    return due < now ? 'En retard' : 'En attente';
+  }
+
+  async sendReminder(id: number, email: string) {
+    if (!email) {
+      this.feedback.error('Aucune adresse email pour cet employé.');
+      return;
     }
-    await this.load();
-    this.feedback.success('Reminder sending flow completed.');
+    
+    try {
+      // Appel au backend pour enregistrer l'envoi et générer une notification
+      await firstValueFrom(this.api.sendReminder(id));
+      this.feedback.success(`Rappel envoyé avec succès à ${email}`);
+      this.load();
+    } catch (error: any) {
+      console.error('Erreur backend:', error);
+      this.feedback.error('Échec de l\'envoi du rappel au serveur.');
+    }
+  }
+
+  async deleteReminder(id: number) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce rappel ?')) return;
+    try {
+      await firstValueFrom(this.api.deleteReminder(id));
+      this.feedback.success('Rappel supprimé.');
+      this.load();
+    } catch {
+      this.feedback.error('Échec de la suppression.');
+    }
   }
 
   async createManual() {
-    const payload = this.createForm();
-    if (!payload.employeeId) {
-      this.feedback.error('Employee ID is required.');
+    const f = this.createForm();
+    
+    if (!f.employeeId) {
+      this.feedback.error('Veuillez sélectionner un employé.');
       return;
     }
+
     try {
-      await firstValueFrom(this.api.createManualReminder({
-        employeeId: Number(payload.employeeId),
-        dateEcheance: payload.dateEcheance,
-      }));
-      await this.load();
-      this.feedback.success('Manual reminder created.');
-      this.showCreate.set(false);
+      const timeVal = f.time ? ` à ${f.time}` : '';
+      const dateStr = f.dueDate ? new Date(f.dueDate).toLocaleDateString('fr-FR') : 'prochainement';
+      const defaultMessage = `Bonjour, ceci est un rappel pour votre ${f.type.toLowerCase()} prévu le ${dateStr}${timeVal}.\n\nMerci de vous présenter à l'heure.\n\n${f.message ? 'Note du médecin : ' + f.message : ''}`;
+
+      const payload = {
+        employeeId: f.employeeId,
+        employeeEmail: f.employeeEmail || null,
+        type: f.type,
+        message: defaultMessage,
+        dueDate: f.dueDate,
+        sendEmailNow: f.sendEmailNow && !!f.employeeEmail
+      };
+
+      await firstValueFrom(this.api.createReminder(payload));
+      
+      if (payload.sendEmailNow) {
+        this.feedback.success(`✅ Rappel créé et email envoyé à ${f.employeeEmail}`);
+      } else {
+        this.feedback.success('✅ Rappel créé (sans envoi email)');
+      }
+      
+      this.closeCreateManual();
+      this.load();
     } catch {
-      this.feedback.error('Failed to create manual reminder.');
+      this.feedback.error('Échec de la création du rappel.');
     }
   }
 
-  openCreateManual() { this.showCreate.set(true); }
+  selectEmployee(emp: any) {
+    this.updateCreateForm('employeeId', emp.id);
+    this.updateCreateForm('employeeEmail', emp.email || '');
+    this.empSearch.set(`${emp.prenom} ${emp.nom}`);
+  }
+
+  openCreateManual() { 
+    this.resetCreateForm();
+    this.showCreate.set(true); 
+  }
   closeCreateManual() { this.showCreate.set(false); }
+
+  resetCreateForm() {
+    this.empSearch.set('');
+    this.createForm.set({
+      employeeId: null,
+      employeeEmail: '',
+      type: 'Visite périodique annuelle',
+      message: '',
+      dueDate: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString().slice(0, 10),
+      time: '10:00',
+      sendEmailNow: true
+    });
+  }
 
   updateCreateForm(key: string, value: any) {
     this.createForm.update(f => ({ ...f, [key]: value }));

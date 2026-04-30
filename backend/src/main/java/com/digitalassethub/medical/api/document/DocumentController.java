@@ -34,7 +34,7 @@ public class DocumentController {
     private String storagePath;
 
     @PostMapping("/upload")
-    @PreAuthorize("hasAnyRole('COORDINATRICE','DOCTOR')")
+    @PreAuthorize("hasAnyRole('COORDINATRICE','MEDECIN','ADMIN')")
     public DocumentEntity upload(
             @RequestParam("file") MultipartFile file,
             @RequestParam("employeeId") Long employeeId,
@@ -56,13 +56,22 @@ public class DocumentController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('COORDINATRICE','DOCTOR')")
-    public List<DocumentEntity> list(@RequestParam Long consultationId) {
-        return repository.findByConsultationId(consultationId);
+    @PreAuthorize("hasAnyRole('COORDINATRICE','MEDECIN','ADMIN')")
+    public List<DocumentEntity> list(
+            @RequestParam(required = false) Long employeeId,
+            @RequestParam(required = false) Long consultationId
+    ) {
+        if (consultationId != null) {
+            return repository.findByConsultationId(consultationId);
+        }
+        if (employeeId != null) {
+            return repository.findByEmployeeId(employeeId);
+        }
+        return List.of();
     }
 
     @GetMapping("/{id}/download")
-    @PreAuthorize("hasAnyRole('COORDINATRICE','DOCTOR')")
+    @PreAuthorize("hasAnyRole('COORDINATRICE','MEDECIN','ADMIN')")
     public ResponseEntity<Resource> download(@PathVariable Long id) {
         DocumentEntity document = repository.findById(id).orElseThrow();
         Resource resource = new FileSystemResource(document.getCheminStockage());
@@ -73,7 +82,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('COORDINATRICE')")
+    @PreAuthorize("hasAnyRole('COORDINATRICE','MEDECIN','ADMIN')")
     public void delete(@PathVariable Long id) throws IOException {
         DocumentEntity document = repository.findById(id).orElseThrow();
         Files.deleteIfExists(Path.of(document.getCheminStockage()));

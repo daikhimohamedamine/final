@@ -1,7 +1,6 @@
 package com.digitalassethub.medical.api.drug;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,18 +17,21 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Drugs")
 @RestController
 @RequestMapping("/api/v1/drugs")
-@RequiredArgsConstructor
 public class DrugController {
     private final DrugRepository repository;
 
+    public DrugController(DrugRepository repository) {
+        this.repository = repository;
+    }
+
     @GetMapping
-    @PreAuthorize("hasAnyRole('DOCTOR','COORDINATRICE','ADMIN')")
+    @PreAuthorize("hasAnyRole('MEDECIN','COORDINATRICE','ADMIN')")
     public Page<DrugEntity> list(@RequestParam(defaultValue = "") String query, Pageable pageable) {
-        return repository.findByDrugNameContainingIgnoreCaseOrGenericNameContainingIgnoreCase(query, query, pageable);
+        return repository.searchFull(query, pageable);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('DOCTOR','COORDINATRICE','ADMIN')")
+    @PreAuthorize("hasAnyRole('MEDECIN','COORDINATRICE','ADMIN')")
     public DrugEntity get(@PathVariable Long id) {
         return repository.findById(id).orElseThrow();
     }

@@ -13,6 +13,10 @@ export interface EmployeeListItem {
   avatar?: string;
   vaccines?: number;
   consultations?: number;
+  phone?: string;
+  email?: string;
+  gouvernorat?: string;
+  matricule?: string;
 }
 
 export type ConsultationType = 'Embauche' | 'Périodique' | 'Reprise' | 'Soin' | 'Spontanée';
@@ -49,11 +53,13 @@ export type AuditLevel = 'ok' | 'warn' | 'danger';
 export interface AuditEvent {
   id: string;
   actor: string;
-  actorRole: 'admin' | 'coordinatrice' | 'doctor' | 'system';
+  actorRole: 'admin' | 'coordinatrice' | 'medecin' | 'system';
   action: string;
   target: string;
   ip: string;
   time: string;
   level: AuditLevel;
+  medecinContext?: string;
+  userId?: number;
 }
 

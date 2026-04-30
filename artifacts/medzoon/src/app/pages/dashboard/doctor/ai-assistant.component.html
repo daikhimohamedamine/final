@@ -26,7 +26,11 @@
         <div class="ai-msg" [class.ai-msg--user]="m.role==='user'">
           @if (m.role === 'assistant') { <span class="ai-msg__avatar"><app-icon name="sparkles" [size]="12"></app-icon></span> }
           <div class="ai-msg__bubble">
-            @if (m.text) { <p>{{ m.text }}</p> }
+            @if (m.text) { 
+              <p [style.font-size.rem]="m.isDisclaimer ? 0.75 : 0.88" [style.color]="m.isDisclaimer ? 'var(--color-fg-soft)' : 'inherit'">
+                {{ m.text }}
+              </p> 
+            }
             @if (m.suggestions?.length) {
               <ul class="ai-suggestions">
                 @for (s of m.suggestions; track s.drug.set_id) {
@@ -62,7 +66,7 @@
 
     <footer class="ai-panel__foot">
       <p class="ai-panel__disclaimer">
-        Les suggestions sont indicatives. La décision finale relève de votre responsabilité médicale.
+        Assistant IA MediCab • Aide à la décision • Tunis, Tunisie
       </p>
       <form (submit)="$event.preventDefault(); send()">
         <input

@@ -20,8 +20,20 @@ export class VaccinesComponent {
     { name: 'Hépatite B',       coverage: 88, total: 235, due: 24 },
     { name: 'DTP',              coverage: 95, total: 252, due: 11 },
     { name: 'Tuberculose (BCG)',coverage: 78, total: 207, due: 38 },
-    { name: 'Diphtérie',        coverage: 91, total: 240, due: 16 },
+    { name: 'Vaccin de confinement', coverage: 100, total: 10, due: 0 },
     { name: 'Grippe saisonnière', coverage: 64, total: 170, due: 95 },
+  ]);
+
+  vaccineTypes = signal([
+    'Tétanos (Tdap)',
+    'Hépatite B',
+    'DTP',
+    'Tuberculose (BCG)',
+    'Diphtérie',
+    'Grippe saisonnière',
+    'Vaccin de confinement',
+    'COVID-19 Booster',
+    'Fièvre jaune'
   ]);
 
   alerts = signal([
@@ -37,8 +49,10 @@ export class VaccinesComponent {
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80' },
   ]);
   showRegister = signal(false);
+  employees = signal<any[]>([]);
   registerForm = signal({
     employeeId: '',
+    vaccineType: 'Tétanos (Tdap)',
     dateEcheance: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10),
   });
 
@@ -48,6 +62,11 @@ export class VaccinesComponent {
 
   async load() {
     try {
+      // Charger les employés pour le dropdown
+      const empRes = await firstValueFrom(this.api.employees());
+      const empRows = Array.isArray(empRes?.content) ? empRes.content : Array.isArray(empRes) ? empRes : [];
+      this.employees.set(empRows);
+
       const from = new Date();
       const to = new Date();
       to.setDate(to.getDate() + 30);
@@ -55,12 +74,14 @@ export class VaccinesComponent {
       if (Array.isArray(reminders) && reminders.length) {
         this.alerts.set(reminders.map((r: any) => ({
           id: `EMP-${r.employeeId}`,
-          name: `Employee #${r.employeeId}`,
+          name: r.employeeName || `Employee #${r.employeeId}`,
           vaccine: r.type === 'PERIODIQUE' ? 'Rappel périodique' : 'Rappel manuel',
-          due: r.dateEcheance,
+          due: r.dateEcheance ? new Date(r.dateEcheance).toLocaleDateString('fr-FR') : '-',
           level: r.envoye ? 'ok' : 'warn',
           avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=120&q=80',
         })));
+      } else {
+        this.alerts.set([]);
       }
     } catch {
       this.feedback.error('Unable to load vaccine alerts.');
@@ -87,7 +108,9 @@ export class VaccinesComponent {
     try {
       await firstValueFrom(this.api.createManualReminder({
         employeeId: Number(f.employeeId),
+        type: 'VACCIN: ' + f.vaccineType,
         dateEcheance: f.dateEcheance,
+        message: 'Rappel pour votre vaccination : ' + f.vaccineType
       }));
       await this.load();
       this.showRegister.set(false);
@@ -105,5 +128,8 @@ export class VaccinesComponent {
   }
   updateDateEcheance(dateEcheance: string) {
     this.registerForm.update(f => ({ ...f, dateEcheance }));
+  }
+  updateVaccineType(vaccineType: string) {
+    this.registerForm.update(f => ({ ...f, vaccineType }));
   }
 }

@@ -1,17 +1,18 @@
 package com.digitalassethub.medical.api.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -38,11 +39,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String username = jwtService.extractSubject(jwt);
-        var userDetails = userDetailsService.loadUserByUsername(username);
-        var token = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(token);
+        try {
+            String username = jwtService.extractSubject(jwt);
+            var userDetails = userDetailsService.loadUserByUsername(username);
+            System.out.println("DEBUG AUTH: User=" + username + ", Authorities=" + userDetails.getAuthorities());
+            if (userDetails.getAuthorities().isEmpty()) {
+                System.out.println("WARNING AUTH: User has NO authorities!");
+            }
+            var token = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            token.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(token);
+        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+            System.out.println("DEBUG AUTH: JWT token user not found - " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("DEBUG AUTH: JWT token error - " + e.getMessage());
+        }
+        
         filterChain.doFilter(request, response);
     }
 }

@@ -12,15 +12,15 @@ import { RevealDirective } from '../../shared/reveal.directive';
 })
 export class SolutionsComponent {
   bullets = [
-    'Centralize personal info, antécédents, and habits — searchable in seconds.',
-    'Capture every consultation type: embauche, périodique, soin, reprise.',
-    'Automated annual reminders with email & in-app notifications.',
-    'Granular role-based access for médecins du travail and coordinatrices.',
+    'Centralisation des infos personnelles et antécédents — recherche instantanée.',
+    'Saisie de tous types de visites : embauche, périodique, soin, reprise.',
+    'Rappels annuels automatisés avec notifications par email et application.',
+    'Accès granulaire par rôle pour médecins du travail et coordinatrices.',
   ];
 
   hours = [
-    { day: 'Mon — Fri', time: '9:00 AM – 12:00 PM' },
-    { day: 'Sat',       time: '9:00 AM – 6:00 PM'  },
-    { day: 'Sun',       time: '7:00 AM – 8:00 PM'  },
+    { day: 'Lun — Ven', time: '08h00 – 17h00' },
+    { day: 'Sam',       time: 'Fermé'  },
+    { day: 'Dim',       time: 'Fermé'  },
   ];
 }

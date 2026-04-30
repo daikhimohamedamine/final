@@ -14,9 +14,9 @@ interface Step { num: string; title: string; description: string; icon: IconName
 })
 export class ProcessComponent {
   steps: Step[] = [
-    { num: '01', title: 'Onboard',          icon: 'users',        description: 'Add an employee with full identification and antécédents in one form.' },
-    { num: '02', title: 'Examine',          icon: 'stethoscope',  description: 'Capture embauche, périodique or reprise visits with structured templates.' },
-    { num: '03', title: 'Track Vaccines',   icon: 'syringe',      description: 'Schedule and track immunizations with automatic overdue alerts.' },
-    { num: '04', title: 'Stay Compliant',   icon: 'shield',       description: 'Generate audit-ready reports for HIPAA, GDPR and your internal HR.' },
+    { num: '01', title: 'Intégration',       icon: 'users',        description: 'Ajoutez un employé avec ses informations complètes et antécédents en un seul formulaire.' },
+    { num: '02', title: 'Examen',           icon: 'stethoscope',  description: 'Saisissez les visites d\'embauche, périodiques ou de reprise avec des modèles structurés.' },
+    { num: '03', title: 'Suivi Vaccinal',   icon: 'syringe',      description: 'Planifiez et suivez les vaccinations avec des alertes automatiques de retard.' },
+    { num: '04', title: 'Conformité',       icon: 'shield',       description: 'Générez des rapports prêts pour l\'audit pour le RGPD et vos ressources humaines internes.' },
   ];
 }

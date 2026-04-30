@@ -19,13 +19,29 @@ interface Dept {
 })
 export class DepartmentsComponent {
   departments: Dept[] = [
-    { id: '01', name: 'Medical Records', icon: 'document', description: 'Centralized employee files with full clinical history, allergies, and treatments — searchable in seconds.' },
-    { id: '02', name: 'Periodic Visits', icon: 'calendar', description: 'Automated reminders for annual visits, return-to-work exams, and onboarding check-ups.' },
-    { id: '03', name: 'Vaccinations', icon: 'syringe', description: 'Track immunization status across your workforce with timeline views and overdue alerts.' },
-    { id: '04', name: 'Cardiology', icon: 'cardio', description: 'Capture vitals, ECGs, blood pressure, and pulse with structured templates.' },
-    { id: '05', name: 'Neurology', icon: 'brain', description: 'Document reflexes, equilibrium, and neuro-psychic exams with rich clinical fields.' },
-    { id: '06', name: 'Ophthalmology', icon: 'eye', description: 'Vision screenings — near and far, both eyes — built into every embauche workflow.' },
-    { id: '07', name: 'Treatments', icon: 'pill', description: 'Prescriptions, observations, and recommendations attached to every consultation.' },
-    { id: '08', name: 'Reporting', icon: 'chart', description: 'PDF & Excel exports for compliance reports, periodic visit lists, and HR audits.' },
+    {
+      id: '01',
+      name: 'Consultations Médicales',
+      icon: 'stethoscope',
+      description: 'Enregistrement et suivi de toutes les visites médicales : embauche, périodiques, soins et reprises.'
+    },
+    {
+      id: '02',
+      name: 'Vaccinations',
+      icon: 'shield',
+      description: 'Gestion du calendrier vaccinal des employés avec rappels automatiques et suivi de couverture.'
+    },
+    {
+      id: '03',
+      name: 'Dossiers Médicaux',
+      icon: 'folder',
+      description: 'Centralisation sécurisée de l\'historique médical complet de chaque employé COFICAB.'
+    },
+    {
+      id: '04',
+      name: 'Alertes & Rappels',
+      icon: 'bell',
+      description: 'Notifications automatiques pour les visites périodiques et les rappels de vaccination.'
+    },
   ];
 }

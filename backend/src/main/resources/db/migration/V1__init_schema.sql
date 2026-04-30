@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS `user` (
     password_hash VARCHAR(255) NOT NULL,
     nom VARCHAR(100),
     prenom VARCHAR(100),
-    role ENUM('ADMIN','COORDINATRICE','DOCTOR') NOT NULL,
+    role ENUM('ADMIN','COORDINATRICE','MEDECIN') NOT NULL,
+    telephone VARCHAR(20),
     enabled BOOLEAN DEFAULT TRUE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -17,6 +18,8 @@ CREATE TABLE IF NOT EXISTS employee (
     prenom VARCHAR(100) NOT NULL,
     date_naissance DATE NOT NULL,
     lieu_naissance VARCHAR(150),
+    telephone VARCHAR(20),
+    gouvernorat VARCHAR(50),
     situation_famille VARCHAR(50),
     nb_enfants INT DEFAULT 0,
     adresse VARCHAR(255),
@@ -66,13 +69,13 @@ CREATE TABLE IF NOT EXISTS reminder (
 
 CREATE TABLE IF NOT EXISTS drug (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    drug_name VARCHAR(200),
-    generic_name VARCHAR(200),
-    dosage VARCHAR(100),
+    drug_name TEXT,
+    generic_name TEXT,
+    dosage TEXT,
     indications TEXT,
     image_lookup_url VARCHAR(500),
     set_id VARCHAR(100),
-    sicknesses JSON,
+    sicknesses TEXT,
     active BOOLEAN DEFAULT TRUE
 );
 

@@ -18,11 +18,10 @@ export class NavbarComponent {
   mobileOpen = signal(false);
 
   links: NavItem[] = [
-    { label: 'Home', href: '#home' },
-    { label: 'About Us', href: '#solutions' },
-    { label: 'Departments', href: '#departments' },
-    { label: 'Pages', href: '#process' },
-    { label: 'Blog', href: '#blog' },
+    { label: 'Accueil', href: '#home' },
+    { label: 'Services', href: '#departments' },
+    { label: 'Rôles', href: '#security' },
+    { label: 'Nous Trouver', href: '#location' },
     { label: 'Contact', href: '#footer' },
   ];
 

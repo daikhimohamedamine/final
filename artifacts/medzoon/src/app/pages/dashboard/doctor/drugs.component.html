@@ -1,141 +1,155 @@
 <div class="page-header">
   <div class="page-header__title">
-    <h1>Drug Library</h1>
-    <p>Recherchez et glissez un médicament vers la zone d'ordonnance pour préparer une prescription.</p>
+    <h1>Bibliothèque Médicale</h1>
+    <p>Consultez les médicaments ou gérez vos ressources personnelles.</p>
   </div>
   <div class="page-header__actions">
-    <button class="btn-soft" (click)="printPrescription()"><app-icon name="document" [size]="14"></app-icon> Imprimer ordonnance</button>
+    <div class="tab-switcher">
+      <button [class.active]="activeTab()==='DRUGS'" (click)="setTab('DRUGS')">Médicaments</button>
+      <button [class.active]="activeTab()==='RESOURCES'" (click)="setTab('RESOURCES')">Mes Ressources</button>
+    </div>
+    @if (activeTab() === 'RESOURCES') {
+      <button class="btn btn-primary btn-sm" (click)="showUploadResource.set(true)">
+        <app-icon name="plus" [size]="14"></app-icon> Ajouter un document
+      </button>
+    }
   </div>
 </div>
 
-<div class="drugs">
-  <section class="drugs__library">
-    <div class="drugs__filters">
-      <div class="drugs__search">
-        <app-icon name="document" [size]="16"></app-icon>
-        <input
-          type="search"
-          placeholder="Nom commercial, DCI, indication ou maladie…"
-          [value]="query()"
-          (input)="query.set($any($event.target).value)"
-        />
-      </div>
-      <div class="drugs__cats">
-        @for (c of categories; track c) {
-          <button type="button"
-            class="drugs__cat"
-            [class.is-active]="category() === c"
-            (click)="category.set(c)">{{ c }}</button>
-        }
-      </div>
-    </div>
+<div class="library-container">
+  <!-- Section Médicaments -->
+  @if (activeTab() === 'DRUGS') {
+    <div class="drugs-grid-layout">
+      <div class="main-content">
+        <div class="search-bar">
+          <input type="text" [value]="query()" (input)="query.set($any($event.target).value)" placeholder="Nom commercial, DCI, indication ou maladie...">
+        </div>
+        
+        <div class="category-filters">
+          @for (c of categories; track c) {
+            <button class="chip" [class.active]="category() === c" (click)="category.set(c)">{{ c }}</button>
+          }
+        </div>
 
-    @if (filtered().length === 0) {
-      <div class="empty-state">Aucun médicament ne correspond à votre recherche.</div>
-    } @else {
-      <div class="drugs__grid">
-        @for (d of filtered(); track d.set_id) {
-          <article
-            class="drug-card"
-            [class.is-dragging]="draggingId() === d.set_id"
-            draggable="true"
-            (dragstart)="onDragStart($event, d)"
-            (dragend)="onDragEnd()"
-            (click)="open(d)">
-            <div class="drug-card__img">
-              <img [src]="d.image_lookup_url" [alt]="d.drug_name" loading="lazy"/>
-              <span class="drug-card__cat" [attr.data-cat]="d.category">{{ d.category }}</span>
-            </div>
-            <div class="drug-card__body">
-              <strong>{{ d.drug_name }}</strong>
-              <span class="drug-card__dci">{{ d.generic_name }} · {{ d.dosage }}</span>
-              <p>{{ d.indications }}</p>
-              <div class="drug-card__tags">
-                @for (s of d.sicknesses; track s) { <span class="drug-card__tag">{{ s }}</span> }
+        <div class="cards-grid">
+          @for (d of filteredDrugs(); track d.set_id) {
+            <div class="drug-card" draggable="true" (dragstart)="onDragStart($event, d)" (dragend)="onDragEnd()" (click)="addToRx(d)">
+              <div class="drug-card__header">
+                <span class="tag">{{ d.category }}</span>
               </div>
+              <h3>{{ d.drug_name }}</h3>
+              <p class="generic">{{ d.generic_name }}</p>
+              <p class="indications">{{ d.indications }}</p>
             </div>
-            <button type="button" class="drug-card__add" (click)="addToRx(d); $event.stopPropagation()" aria-label="Add">
+          }
+        </div>
+      </div>
+
+      <aside class="prescription-sidebar" (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)" [class.drop-active]="dropActive()">
+        <div class="sidebar-header">
+          <h3>Ordonnance en cours</h3>
+          <p>{{ rx.items().length }} médicament(s)</p>
+        </div>
+
+        <div class="sidebar-body">
+          @if (rx.items().length === 0) {
+            <div class="empty-state">
+              <app-icon name="plus" [size]="32"></app-icon>
+              <p>Glissez-déposez des médicaments ici</p>
+            </div>
+          } @else {
+            <div class="rx-list">
+              @for (item of rx.items(); track item.drug.set_id) {
+                <div class="rx-item">
+                  <div class="rx-item__head">
+                    <strong>{{ item.drug.drug_name }}</strong>
+                    <button (click)="removeFromRx(item.drug.set_id)"><app-icon name="close" [size]="14"></app-icon></button>
+                  </div>
+                  <input type="text" [value]="item.posology" (input)="setPosology(item.drug.set_id, $any($event.target).value)" placeholder="Posologie...">
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+
+  <!-- Section Mes Ressources -->
+  @if (activeTab() === 'RESOURCES') {
+    <div class="resources-grid mt-4">
+      @for (r of filteredResources(); track r.id) {
+        <div class="resource-card">
+          <div class="resource-card__icon">
+            @switch (r.categorie) {
+              @case ('LIVRE') { <app-icon name="document" [size]="32"></app-icon> }
+              @case ('LIVRE_MEDICAL') { <app-icon name="document" [size]="32" style="color: var(--color-primary);"></app-icon> }
+              @case ('JOURNAL') { <app-icon name="chart" [size]="32"></app-icon> }
+              @case ('CERTIFICAT') { <app-icon name="shield" [size]="32" style="color: #059669;"></app-icon> }
+              @case ('EXPERIENCE') { <app-icon name="briefcase" [size]="32" style="color: #7c3aed;"></app-icon> }
+              @default { <app-icon name="folder" [size]="32"></app-icon> }
+            }
+          </div>
+          <div class="resource-card__content">
+            <span class="tag tag--xs">{{ r.categorie }}</span>
+            <h4 class="text-truncate" [title]="r.nomFichier">{{ r.nomFichier }}</h4>
+            <p class="description">{{ r.description || 'Aucune description' }}</p>
+            <span class="date">Ajouté le {{ r.uploadedAt | date:'dd MMM yyyy' }}</span>
+          </div>
+          <div class="resource-card__actions">
+            <button class="btn-icon btn-icon--sm" (click)="downloadResource(r)" title="Télécharger">
               <app-icon name="plus" [size]="14"></app-icon>
             </button>
-          </article>
-        }
-      </div>
-    }
-  </section>
-
-  <aside class="drugs__rx"
-    [class.is-active]="dropActive()"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave()"
-    (drop)="onDrop($event)">
-    <header class="drugs__rx-head">
-      <div>
-        <h2>Ordonnance en cours</h2>
-        <p>Glissez ici depuis la bibliothèque · {{ rx.items().length }} médicament(s)</p>
-      </div>
-      @if (rx.items().length > 0) {
-        <button type="button" class="drugs__rx-clear" (click)="rx.clear()">
-          <app-icon name="close" [size]="12"></app-icon> Vider
-        </button>
+            <button class="btn-icon btn-icon--sm btn-icon--danger" (click)="deleteResource(r)" title="Supprimer">
+              <app-icon name="close" [size]="14"></app-icon>
+            </button>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state full-width">
+          <app-icon name="folder" [size]="48"></app-icon>
+          <p>Aucun document dans votre bibliothèque.</p>
+        </div>
       }
-    </header>
-
-    @if (rx.items().length === 0) {
-      <div class="drugs__rx-empty">
-        <span class="drugs__rx-empty-icon"><app-icon name="syringe" [size]="22"></app-icon></span>
-        <strong>Glissez-déposez un médicament ici</strong>
-        <p>Vous pouvez aussi cliquer sur le bouton « + » d'une carte ou ouvrir l'assistant IA.</p>
-      </div>
-    } @else {
-      <ul class="drugs__rx-list">
-        @for (p of rx.items(); track p.drug.set_id) {
-          <li class="rx-item">
-            <div class="rx-item__head">
-              <strong>{{ p.drug.drug_name }} <span>{{ p.drug.dosage }}</span></strong>
-              <button type="button" class="rx-item__remove" (click)="removeFromRx(p.drug.set_id)" aria-label="Remove">
-                <app-icon name="close" [size]="12"></app-icon>
-              </button>
-            </div>
-            <span class="rx-item__dci">{{ p.drug.generic_name }}</span>
-            <input
-              type="text"
-              class="rx-item__pos"
-              placeholder="Posologie (ex. 1 cp matin et soir pendant 7 jours)"
-              [value]="p.posology"
-              (input)="setPosology(p.drug.set_id, $any($event.target).value)"
-            />
-          </li>
-        }
-      </ul>
-
-      <button type="button" class="btn btn-primary btn-sm drugs__rx-save" (click)="saveToConsultation()">
-        <app-icon name="check" [size]="14"></app-icon> Enregistrer dans la consultation
-      </button>
-    }
-  </aside>
+    </div>
+  }
 </div>
 
-@if (selected(); as d) {
-  <div class="drug-modal" (click)="closeDetail()">
-    <div class="drug-modal__panel" (click)="$event.stopPropagation()">
-      <button type="button" class="drug-modal__close" (click)="closeDetail()" aria-label="Close">
-        <app-icon name="close" [size]="18"></app-icon>
-      </button>
-      <img [src]="d.image_lookup_url" [alt]="d.drug_name"/>
-      <div class="drug-modal__body">
-        <span class="drug-card__cat" [attr.data-cat]="d.category">{{ d.category }}</span>
-        <h2>{{ d.drug_name }}</h2>
-        <p class="drug-modal__dci">{{ d.generic_name }} · {{ d.dosage }}</p>
-        <h3>Indications</h3>
-        <p>{{ d.indications }}</p>
-        <h3>Maladies cibles</h3>
-        <div class="drug-card__tags">
-          @for (s of d.sicknesses; track s) { <span class="drug-card__tag">{{ s }}</span> }
+<!-- Modal Upload Ressource -->
+@if (showUploadResource()) {
+  <div class="emp-modal" (click)="showUploadResource.set(false)">
+    <div class="emp-modal__panel" (click)="$event.stopPropagation()">
+      <header class="emp-modal__head">
+        <h2>Ajouter une ressource</h2>
+        <button class="emp-modal__close" (click)="showUploadResource.set(false)"><app-icon name="close" [size]="18"></app-icon></button>
+      </header>
+      <div class="emp-modal__body">
+        <div class="emp-form__grid">
+          <label class="emp-form__field">
+            <span>Fichier (PDF, Image...)</span>
+            <input type="file" (change)="onFileSelected($event)">
+          </label>
+          <label class="emp-form__field">
+            <span>Catégorie</span>
+            <select [(ngModel)]="uploadData().categorie">
+              <option value="LIVRE">Livre / Guide</option>
+              <option value="LIVRE_MEDICAL">Livre Médical Spécialisé</option>
+              <option value="JOURNAL">Journal Médical</option>
+              <option value="CERTIFICAT">Certificat</option>
+              <option value="EXPERIENCE">Attestation d'expérience</option>
+              <option value="AUTRE">Autre</option>
+            </select>
+          </label>
+          <label class="emp-form__field full">
+            <span>Description</span>
+            <textarea [(ngModel)]="uploadData().description" placeholder="Ex: Guide de médecine du travail 2024"></textarea>
+          </label>
         </div>
-        <button type="button" class="btn btn-primary btn-sm drug-modal__add" (click)="addToRx(d); closeDetail()">
-          <app-icon name="plus" [size]="14"></app-icon> Ajouter à l'ordonnance
-        </button>
       </div>
+      <footer class="emp-modal__foot">
+        <button class="btn-soft" (click)="showUploadResource.set(false)">Annuler</button>
+        <button class="btn btn-primary" (click)="uploadResource()" [disabled]="!uploadFile()">Téléverser</button>
+      </footer>
     </div>
   </div>
 }

@@ -21,25 +21,53 @@ export class AuthService {
   isAuthenticated = computed(() => this._user() !== null);
   role = computed<UserRole | null>(() => this._user()?.role ?? null);
 
-  async signIn(email: string, password: string): Promise<{ ok: true; user: User } | { ok: false; error: string }> {
+  async signIn(email: string, password: string): Promise<{ ok: true; user: User; requires2fa?: boolean } | { ok: false; error: string }> {
     try {
       const res = await firstValueFrom(this.api.login({ email, password }));
+      if (res.requires2fa) {
+        return { ok: true, user: null as any, requires2fa: true };
+      }
       const user: User = {
         id: email,
         email,
         firstName: res.prenom ?? '',
         lastName: res.nom ?? '',
-        role: res.role === 'ADMIN' ? 'admin' : res.role === 'COORDINATRICE' ? 'coordinatrice' : 'doctor',
-        title: res.role === 'ADMIN' ? 'Platform Administrator' : res.role === 'COORDINATRICE' ? 'Coordinatrice Santé' : 'Médecin du Travail',
+        role: res.role === 'ADMIN' ? 'admin' : res.role === 'COORDINATRICE' ? 'coordinatrice' : 'medecin',
+        title: res.role === 'ADMIN' ? 'Administrateur Plateforme' : res.role === 'COORDINATRICE' ? 'Coordinatrice Santé' : 'Médecin du Travail',
         organization: 'Medzoon',
         avatar: '',
         token: res.accessToken,
+        assignedMedecinId: res.assignedMedecinId || undefined
       };
       this.setUser(user);
       localStorage.setItem(TOKEN_KEY, res.accessToken);
       return { ok: true, user };
     } catch (err: any) {
-      const msg = err?.error?.message || 'Invalid email or password.';
+      const msg = err?.error?.message || 'Email ou mot de passe invalide.';
+      return { ok: false, error: msg };
+    }
+  }
+
+  async verify2fa(email: string, code: string): Promise<{ ok: true; user: User } | { ok: false; error: string }> {
+    try {
+      const res = await firstValueFrom(this.api.verify2fa(email, code));
+      const user: User = {
+        id: email,
+        email,
+        firstName: res.prenom ?? '',
+        lastName: res.nom ?? '',
+        role: res.role === 'ADMIN' ? 'admin' : res.role === 'COORDINATRICE' ? 'coordinatrice' : 'medecin',
+        title: res.role === 'ADMIN' ? 'Administrateur Plateforme' : res.role === 'COORDINATRICE' ? 'Coordinatrice Santé' : 'Médecin du Travail',
+        organization: 'Medzoon',
+        avatar: '',
+        token: res.accessToken,
+        assignedMedecinId: res.assignedMedecinId || undefined
+      };
+      this.setUser(user);
+      localStorage.setItem(TOKEN_KEY, res.accessToken);
+      return { ok: true, user };
+    } catch (err: any) {
+      const msg = err?.error?.message || 'Code de vérification invalide.';
       return { ok: false, error: msg };
     }
   }
@@ -49,6 +77,28 @@ export class AuthService {
     try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
     try { localStorage.removeItem(TOKEN_KEY); } catch { /* ignore */ }
     this.router.navigateByUrl('/');
+  }
+
+  async updateProfile(profile: { firstName: string; lastName: string; phone: string }): Promise<void> {
+    const current = this._user();
+    if (!current) return;
+
+    try {
+      // 1. Sync with backend
+      await firstValueFrom(this.api.updateUserProfile({
+        prenom: profile.firstName,
+        nom: profile.lastName,
+        telephone: profile.phone
+      }));
+
+      // 2. Update local state
+      const updated: User = { ...current, ...profile };
+      this._user.set(updated);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    } catch (err) {
+      console.error('Failed to update profile on backend', err);
+      throw err;
+    }
   }
 
   private setUser(user: User) {

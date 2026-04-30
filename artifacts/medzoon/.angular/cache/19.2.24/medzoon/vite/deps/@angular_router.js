@@ -1,16 +1,19 @@
 import {
   Title
-} from "./chunk-UPRB3YDR.js";
-import "./chunk-XWRNR6NU.js";
+} from "./chunk-2IZW5WP2.js";
+import "./chunk-ULT3E7W3.js";
+import "./chunk-5XEKNLZP.js";
 import {
-  DOCUMENT,
   HashLocationStrategy,
   LOCATION_INITIALIZED,
   Location,
   LocationStrategy,
   PathLocationStrategy,
   ViewportScroller
-} from "./chunk-3LRZV6Z2.js";
+} from "./chunk-XXEYNNXT.js";
+import {
+  DOCUMENT
+} from "./chunk-YYCSJY5N.js";
 import {
   APP_BOOTSTRAP_LISTENER,
   ApplicationRef,
@@ -77,7 +80,7 @@ import {
   ɵɵloadQuery,
   ɵɵqueryRefresh,
   ɵɵsanitizeUrlOrResourceUrl
-} from "./chunk-4XM7K22P.js";
+} from "./chunk-J5I2SJBH.js";
 import {
   BehaviorSubject,
   ConnectableObservable,
@@ -85,8 +88,6 @@ import {
   EmptyError,
   Subject,
   Subscription,
-  __spreadProps,
-  __spreadValues,
   catchError,
   combineLatest,
   concat,
@@ -113,11 +114,15 @@ import {
   takeUntil,
   tap,
   throwError
-} from "./chunk-SZPMUFGN.js";
+} from "./chunk-BW5YVS4F.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-3OV72XIM.js";
 
-// ../../node_modules/.pnpm/@angular+router@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.j_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router-Dwfin5Au.mjs
+// ../../node_modules/.pnpm/@angular+router@19.2.21_@an_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router-Dwfin5Au.mjs
 var PRIMARY_OUTLET = "primary";
-var RouteTitleKey = /* @__PURE__ */ Symbol("RouteTitle");
+var RouteTitleKey = Symbol("RouteTitle");
 var ParamsAsMap = class {
   params;
   constructor(params) {
@@ -2425,7 +2430,7 @@ function getCanActivateChild(p) {
   };
 }
 function getTokenOrFunctionIdentity(tokenOrFunction, injector) {
-  const NOT_FOUND = /* @__PURE__ */ Symbol();
+  const NOT_FOUND = Symbol();
   const result = injector.get(tokenOrFunction, NOT_FOUND);
   if (result === NOT_FOUND) {
     if (typeof tokenOrFunction === "function" && !isInjectable(tokenOrFunction)) {
@@ -2546,7 +2551,7 @@ function isCanMatch(guard) {
 function isEmptyError(e) {
   return e instanceof EmptyError || e?.name === "EmptyError";
 }
-var INITIAL_VALUE = /* @__PURE__ */ Symbol("INITIAL_VALUE");
+var INITIAL_VALUE = Symbol("INITIAL_VALUE");
 function prioritizedGuardValue() {
   return switchMap((obs) => {
     return combineLatest(obs.map((o) => o.pipe(take(1), startWith(INITIAL_VALUE)))).pipe(map((results) => {
@@ -4744,7 +4749,7 @@ function isPublicRouterEvent(e) {
   return !(e instanceof BeforeActivateRoutes) && !(e instanceof RedirectRequest);
 }
 
-// ../../node_modules/.pnpm/@angular+router@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.j_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router_module-DTJgGWLd.mjs
+// ../../node_modules/.pnpm/@angular+router@19.2.21_@an_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router_module-DTJgGWLd.mjs
 var RouterLink = class _RouterLink {
   router;
   route;
@@ -5877,7 +5882,7 @@ function provideRouterInitializer() {
   ];
 }
 
-// ../../node_modules/.pnpm/@angular+router@19.2.21_@angular+common@19.2.21_@angular+core@19.2.21_rxjs@7.8.2_zone.j_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router.mjs
+// ../../node_modules/.pnpm/@angular+router@19.2.21_@an_8d1a25dcd6b75282437b259543fcccfe/node_modules/@angular/router/fesm2022/router.mjs
 function mapToCanMatch(providers) {
   return providers.map((provider) => (...params) => inject(provider).canMatch(...params));
 }

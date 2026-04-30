@@ -24,7 +24,7 @@ public class ReportController {
     private final Map<String, String> reports = new ConcurrentHashMap<>();
 
     @PostMapping("/generate")
-    @PreAuthorize("hasAnyRole('COORDINATRICE','DOCTOR')")
+    @PreAuthorize("hasAnyRole('COORDINATRICE','MEDECIN')")
     public Map<String, String> generate(@RequestBody Map<String, Object> payload) {
         String id = UUID.randomUUID().toString();
         reports.put(id, "Report generated for request: " + payload);
@@ -32,7 +32,7 @@ public class ReportController {
     }
 
     @GetMapping("/{id}/download")
-    @PreAuthorize("hasAnyRole('COORDINATRICE','DOCTOR')")
+    @PreAuthorize("hasAnyRole('COORDINATRICE','MEDECIN')")
     public ResponseEntity<ByteArrayResource> download(@PathVariable String id) {
         String content = reports.getOrDefault(id, "Report not found");
         ByteArrayResource resource = new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8));

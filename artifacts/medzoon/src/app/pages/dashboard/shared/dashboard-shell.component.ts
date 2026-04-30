@@ -5,6 +5,11 @@ import { ROLE_LABELS, UserRole } from '../../../auth/auth.types';
 import { IconComponent, IconName } from '../../../shared/icon.component';
 import { AiAssistantComponent } from '../doctor/ai-assistant.component';
 import { FeedbackService } from '../../../core/ui/feedback.service';
+import { BackendApiService } from '../../../core/api/backend-api.service';
+import { firstValueFrom } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { DashboardStateService } from '../../../core/ui/dashboard-state.service';
 
 interface NavItem {
   label: string;
@@ -15,26 +20,51 @@ interface NavItem {
 @Component({
   selector: 'app-dashboard-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, IconComponent, AiAssistantComponent],
+  imports: [CommonModule, FormsModule, RouterOutlet, RouterLink, RouterLinkActive, IconComponent, AiAssistantComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './dashboard-shell.component.html',
   styleUrl: './dashboard-shell.component.scss',
 })
 export class DashboardShellComponent {
   auth = inject(AuthService);
-  private router = inject(Router);
+  router = inject(Router);
   feedback = inject(FeedbackService);
-
+  private api = inject(BackendApiService);
+  state = inject(DashboardStateService);
   ROLE_LABELS = ROLE_LABELS;
   user = this.auth.user;
   menuOpen = signal(false);
   sidebarOpen = signal(false);
 
+  saving = signal(false);
+  notificationCount = signal(0);
+  private audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
   navItems = computed<NavItem[]>(() => {
     const role = this.user()?.role;
     if (!role) return [];
-    return NAV_BY_ROLE[role];
+    return NAV_BY_ROLE[role] || [];
   });
+
+  constructor() {
+    this.refreshNotifications();
+    setInterval(() => this.refreshNotifications(), 30000); // Check every 30s
+  }
+
+  async refreshNotifications() {
+    try {
+      const notes = await firstValueFrom(this.api.notifications());
+      const count = Array.isArray(notes) ? notes.filter((n: any) => n.statut === 'PENDING' || !n.read).length : 0;
+      if (count > this.notificationCount()) {
+        this.playNotificationSound();
+      }
+      this.notificationCount.set(count);
+    } catch { /* ignore */ }
+  }
+
+  playNotificationSound() {
+    this.audio.play().catch(e => console.log('Sound playback blocked', e));
+  }
 
   toggleMenu() { this.menuOpen.update((v) => !v); }
   closeMenu()  { this.menuOpen.set(false); }
@@ -50,32 +80,52 @@ export class DashboardShellComponent {
     const role = this.user()?.role;
     if (role === 'admin') this.router.navigateByUrl('/dashboard/admin/audit');
     if (role === 'coordinatrice') this.router.navigateByUrl('/dashboard/coordinatrice/reminders');
-    if (role === 'doctor') this.router.navigateByUrl('/dashboard/doctor/vaccines');
+    if (role === 'medecin') this.router.navigateByUrl('/dashboard/doctor/vaccines');
   }
 
   closeFeedback() {
     this.feedback.clear();
   }
+
+  getRoleLabel(role: any): string {
+    return (ROLE_LABELS as any)[role] || role;
+  }
+
+  // Profile
+  openProfile() {
+    this.closeMenu();
+    this.router.navigate(['/dashboard/profile']);
+  }
+
+  // Security
+  openSecurity() {
+    this.closeMenu();
+    this.router.navigate(['/dashboard/security']);
+  }
 }
 
 const NAV_BY_ROLE: Record<UserRole, NavItem[]> = {
   admin: [
-    { label: 'Overview',     route: '/dashboard/admin',          icon: 'chart' },
-    { label: 'Users & Roles',route: '/dashboard/admin/users',    icon: 'users' },
-    { label: 'Audit Log',    route: '/dashboard/admin/audit',    icon: 'document' },
-    { label: 'Settings',     route: '/dashboard/admin/settings', icon: 'sparkles' },
+    { label: "Vue d'ensemble", route: '/dashboard/admin',          icon: 'chart' },
+    { label: 'Utilisateurs',    route: '/dashboard/admin/users',    icon: 'users' },
+    { label: 'Dossiers Médicaux', route: '/dashboard/admin/dossiers', icon: 'folder' },
+    { label: 'Rendez-vous',     route: '/dashboard/admin/schedule', icon: 'calendar' },
+    { label: 'Consultations',   route: '/dashboard/admin/consults', icon: 'document' },
+    { label: 'Audit',           route: '/dashboard/admin/audit',    icon: 'document' },
+    { label: 'Paramètres',      route: '/dashboard/admin/settings', icon: 'sparkles' },
   ],
   coordinatrice: [
-    { label: 'Overview',     route: '/dashboard/coordinatrice',           icon: 'chart' },
-    { label: 'Employees',    route: '/dashboard/coordinatrice/employees', icon: 'users' },
-    { label: 'Schedule',     route: '/dashboard/coordinatrice/schedule',  icon: 'calendar' },
-    { label: 'Reminders',    route: '/dashboard/coordinatrice/reminders', icon: 'bell' },
+    { label: "Vue d'ensemble", route: '/dashboard/coordinatrice',           icon: 'chart' },
+    { label: 'Employés',        route: '/dashboard/coordinatrice/employees', icon: 'users' },
+    { label: 'Rendez-vous',     route: '/dashboard/coordinatrice/schedule',  icon: 'calendar' },
+    { label: 'Rappels',         route: '/dashboard/coordinatrice/reminders', icon: 'bell' },
   ],
-  doctor: [
-    { label: 'Today',        route: '/dashboard/doctor',           icon: 'stethoscope' },
-    { label: 'My Patients',  route: '/dashboard/doctor/patients',  icon: 'users' },
-    { label: 'Consultations',route: '/dashboard/doctor/consults',  icon: 'document' },
-    { label: 'Vaccinations', route: '/dashboard/doctor/vaccines',  icon: 'syringe' },
-    { label: 'Drug Library', route: '/dashboard/doctor/drugs',     icon: 'pill' },
+  medecin: [
+    { label: "Tableau de bord", route: '/dashboard/doctor',           icon: 'stethoscope' },
+    { label: 'Employés',        route: '/dashboard/doctor/patients',  icon: 'users' },
+    { label: 'Dossiers Médicaux', route: '/dashboard/doctor/dossiers', icon: 'folder' },
+    { label: 'Consultations',   route: '/dashboard/doctor/consults',  icon: 'document' },
+    { label: 'Vaccinations',    route: '/dashboard/doctor/vaccines',  icon: 'syringe' },
+    { label: 'Bibliothèque',    route: '/dashboard/doctor/drugs',     icon: 'pill' },
   ],
 };

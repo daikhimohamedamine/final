@@ -20,10 +20,11 @@ export class DoctorDashboardComponent {
   agendaList = signal<any[]>([]);
 
   kpis = [
-    { label: 'Today\'s consults', value: '...',   delta: 'Loading',         up: true,  icon: 'stethoscope' as const },
-    { label: 'Patients followed', value: '...', delta: 'Loading',       up: true,  icon: 'users' as const },
-    { label: 'Reports to sign',   value: '...',   delta: 'Loading',         up: false, icon: 'document' as const },
-    { label: 'Vaccine alerts',    value: '...',  delta: 'Loading',           up: false, icon: 'syringe' as const },
+    { label: "Consultations aujourd'hui", value: '...', delta: 'Chargement', up: true, icon: 'stethoscope' as const },
+    { label: 'Employés suivis', value: '...', delta: 'Chargement', up: true, icon: 'users' as const },
+    { label: 'Rapports à signer', value: '...', delta: 'Chargement', up: false, icon: 'document' as const },
+    { label: 'Alertes vaccins', value: '...', delta: 'Chargement', up: false, icon: 'syringe' as const },
+    { label: 'Employés', value: '...', delta: 'Chargement', up: true, icon: 'briefcase' as const },
   ];
 
   constructor() {
@@ -33,34 +34,63 @@ export class DoctorDashboardComponent {
   async load() {
     try {
       const today = new Date();
-      today.setHours(0,0,0,0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      
-      const rows = await firstValueFrom(this.api.appointments(today.toISOString(), tomorrow.toISOString()));
-      if (Array.isArray(rows)) {
-        this.agendaList.set(rows.map((a: any) => ({
-          time: a.dateDebut.substring(11, 16),
-          patient: `Employee #${a.employeeId}`,
-          type: a.typeVisite ?? '-',
-          status: a.statut,
-          id: String(a.employeeId),
-          avatar: ''
-        })));
+      const fromStr = today.toISOString().split('T')[0] + 'T00:00:00';
+      const toStr = today.toISOString().split('T')[0] + 'T23:59:59';
+
+      const [rows, emps] = await Promise.all([
+        firstValueFrom(this.api.appointments(fromStr, toStr)),
+        firstValueFrom(this.api.employees()),
+      ]);
+
+      const rowItems = Array.isArray(rows) ? rows : (rows?.content || []);
+      const empItems = Array.isArray(emps) ? emps : (emps?.content || []);
+
+      if (rowItems.length >= 0) {
+        this.agendaList.set(rowItems.map((a: any) => {
+          const emp = empItems.find((e: any) => e.id === a.employeeId);
+          return {
+            time: new Date(a.dateDebut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            patient: emp ? `${emp.prenom} ${emp.nom}` : `Employé #${a.employeeId}`,
+            type: a.typeVisite ?? '-',
+            status: a.statut === 'EFFECTUE' ? 'completed' : 'pending',
+            id: String(a.id),
+            employeeId: a.employeeId,
+            avatar: emp?.avatar ?? `https://api.dicebear.com/7.x/initials/svg?seed=${emp ? emp.prenom + ' ' + emp.nom : a.employeeId}&backgroundColor=3B82F6&textColor=ffffff`
+          };
+        }));
+
+        this.kpis[0].value = String(rowItems.length);
+        this.kpis[0].delta = rowItems.length > 0 ? "À voir aujourd'hui" : 'Aucun prévu';
       }
-    } catch {}
+
+      if (empItems.length >= 0) {
+        this.kpis[1].value = String(empItems.length);
+        this.kpis[1].delta = 'Dossiers actifs';
+        this.kpis[4].value = String(empItems.length);
+        this.kpis[4].delta = 'Employés actifs';
+      }
+
+      this.kpis[2].value = '3';
+      this.kpis[2].delta = 'En attente';
+
+      this.kpis[3].value = '2';
+      this.kpis[3].delta = 'Urgents';
+
+    } catch (e) {
+      console.error('Error loading dashboard data', e);
+    }
   }
 
   alerts = [
-    { patient: 'Marc Lefèvre',     vaccine: 'Tdap booster',     due: 'Due in 3 days',   level: 'warn' },
-    { patient: 'Camille Beaulieu', vaccine: 'Hep B (3rd dose)', due: 'Overdue 5 days',  level: 'danger' },
-    { patient: 'Hugo Martin',      vaccine: 'MMR catch-up',     due: 'Due in 12 days',  level: 'ok' },
+    { patient: 'Ahmed Ben Salem', vaccine: 'Rappel Tétanos', due: 'Dans 3 jours', level: 'warn' },
+    { patient: 'Leila Mansour', vaccine: 'Hépatite B (3ème dose)', due: 'En retard de 5j', level: 'danger' },
+    { patient: 'Sami Jendoubi', vaccine: 'Grippe saisonnière', due: 'Dans 12 jours', level: 'ok' },
   ];
 
   vitals = [
-    { label: 'Avg. consult time',  pct: 78, value: '14 min' },
-    { label: 'Reports completed',  pct: 92, value: '92%' },
-    { label: 'Patient satisfaction', pct: 96, value: '4.8/5' },
+    { label: 'Temps moyen consult.', pct: 78, value: '14 min' },
+    { label: 'Rapports complétés', pct: 92, value: '92%' },
+    { label: 'Satisfaction employés', pct: 96, value: '4.8/5' },
   ];
 
   openConsults() { this.router.navigateByUrl('/dashboard/doctor/consults'); }

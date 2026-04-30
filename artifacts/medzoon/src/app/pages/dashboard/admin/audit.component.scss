@@ -1,4 +1,14 @@
 :host { display: block; }
+.audit__context {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--color-fg-muted);
+  opacity: 0.8;
+  app-icon { color: var(--color-primary); }
+}
 .audit__filters { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .audit__search { padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-bg-soft); font: inherit; font-size: 0.86rem; min-width: 220px; }
 .audit__chips { display: flex; gap: 6px; }
