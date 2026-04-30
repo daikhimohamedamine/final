@@ -5,6 +5,7 @@ import { Drug } from '../../../core/models/models';
 import { PrescriptionService } from './prescription.service';
 import { BackendApiService } from '../../../core/api/backend-api.service';
 import { MedAssistService, ChatMessageDto, StreamEvent } from '../../../core/api/medassist.service';
+import { AuthService } from '../../../auth/auth.service';
 import { firstValueFrom } from 'rxjs';
 
 interface ToolStep {
@@ -34,6 +35,12 @@ const TOOL_LABELS_FR: Record<string, string> = {
   recommend_doctor: 'Sélection d\'un praticien',
   check_drug_interactions: 'Vérification des interactions médicamenteuses',
   generate_soap_note: 'Rédaction de la note SOAP',
+  get_app_info: 'Consultation de l\'aide de l\'application',
+  list_employees: 'Recherche d\'employés / patients',
+  list_users: 'Liste des utilisateurs',
+  list_appointments: 'Liste des rendez-vous',
+  list_audit_logs: 'Lecture du journal d\'audit',
+  get_dashboard_stats: 'Calcul des indicateurs',
 };
 
 @Component({
@@ -48,6 +55,7 @@ export class AiAssistantComponent {
   private rx = inject(PrescriptionService);
   private api = inject(BackendApiService);
   private medAssist = inject(MedAssistService);
+  private auth = inject(AuthService);
   private drugs = signal<Drug[]>([]);
   private nextStepId = 1;
 
@@ -57,31 +65,62 @@ export class AiAssistantComponent {
   liveSteps = signal<ToolStep[]>([]);
   liveResponse = signal<string>('');
 
-  messages = signal<Message[]>([
-    {
-      role: 'assistant',
-      text: "Bonjour ! Je suis MedAssist, votre assistant clinique IA. Je peux interroger les dossiers patients, vérifier les interactions médicamenteuses, générer des ordonnances et des notes SOAP.",
-    },
-    {
-      role: 'assistant',
-      text: DISCLAIMER_TEXT,
-      isDisclaimer: true
-    }
-  ]);
+  userRole = computed(() => this.auth.role());
 
+  greeting = computed(() => {
+    switch (this.auth.role()) {
+      case 'admin':
+        return "Bonjour ! Je suis MedAssist. Je peux répondre à vos questions sur la plateforme : utilisateurs, audit, statistiques, navigation. Demandez-moi par exemple « combien de médecins actifs ? » ou « comment créer un utilisateur ? ».";
+      case 'coordinatrice':
+        return "Bonjour ! Je suis MedAssist. Je peux vous aider à gérer les employés, planifier des rendez-vous, suivre les rappels, ou expliquer comment utiliser la plateforme.";
+      case 'medecin':
+      default:
+        return "Bonjour ! Je suis MedAssist, votre assistant clinique IA. Je peux interroger les dossiers patients, vérifier les interactions médicamenteuses, générer des ordonnances et des notes SOAP, ou répondre à toute question sur la plateforme.";
+    }
+  });
+
+  placeholder = computed(() => {
+    switch (this.auth.role()) {
+      case 'admin':
+        return 'Ex: combien de médecins ? · audit suppressions · qui est connecté ?';
+      case 'coordinatrice':
+        return 'Ex: rendez-vous demain · employé Dupont · comment envoyer un rappel ?';
+      case 'medecin':
+      default:
+        return 'Ex: dossier 1234 · ordonnance amoxicilline · interactions warfarine + ibuprofène';
+    }
+  });
+
+  subtitle = computed(() => {
+    switch (this.auth.role()) {
+      case 'admin':       return 'Administration · audit · statistiques';
+      case 'coordinatrice': return 'Employés · planning · rappels';
+      case 'medecin':
+      default:            return 'Outils en direct · dossiers, interactions, ordonnances';
+    }
+  });
+
+  showDoctorBadge = computed(() => this.auth.role() === 'medecin');
   badgeCount = computed(() => this.rx.items().length);
+
+  messages = signal<Message[]>([]);
 
   toggle() { this.open.update((v) => !v); }
 
   newConversation() {
     this.medAssist.resetSession();
+    this.resetMessages();
+  }
+
+  private resetMessages() {
     this.messages.set([
-      { role: 'assistant', text: 'Nouvelle conversation. Comment puis-je vous aider ?' },
+      { role: 'assistant', text: this.greeting() },
       { role: 'assistant', text: DISCLAIMER_TEXT, isDisclaimer: true },
     ]);
   }
 
   constructor() {
+    this.resetMessages();
     this.loadDrugs();
   }
 
@@ -208,6 +247,21 @@ export class AiAssistantComponent {
       }
       case 'generate_soap_note':
         return typeof input['chief_complaint'] === 'string' ? String(input['chief_complaint']) : undefined;
+      case 'get_app_info':
+        return input['topic'] ? String(input['topic']) : undefined;
+      case 'list_employees':
+        return input['query'] ? `« ${input['query']} »` : 'tous';
+      case 'list_users':
+        return input['role'] ? String(input['role']).toLowerCase() : 'tous rôles';
+      case 'list_appointments': {
+        const from = input['from'] ?? 'aujourd\'hui';
+        const to = input['to'] ?? '+7j';
+        return `${from} → ${to}`;
+      }
+      case 'list_audit_logs':
+        return input['action'] ? String(input['action']) : 'récents';
+      case 'get_dashboard_stats':
+        return undefined;
       default:
         return undefined;
     }
@@ -236,6 +290,23 @@ export class AiAssistantComponent {
       }
       case 'generate_soap_note':
         return d['record_id'] != null ? `Note SOAP #${d['record_id']}` : 'OK';
+      case 'get_app_info':
+        return d['topic'] ? `Aide : ${d['topic']}` : 'Aide chargée';
+      case 'list_employees':
+        return typeof d['count'] === 'number' ? `${d['count']}/${d['total'] ?? '?'} employé(s)` : 'OK';
+      case 'list_users':
+        return typeof d['count'] === 'number' ? `${d['count']} utilisateur(s)` : 'OK';
+      case 'list_appointments':
+        return typeof d['count'] === 'number' ? `${d['count']} rendez-vous` : 'OK';
+      case 'list_audit_logs':
+        return typeof d['count'] === 'number' ? `${d['count']} entrée(s)` : 'OK';
+      case 'get_dashboard_stats': {
+        const parts: string[] = [];
+        if (d['assigned_patients'] != null) parts.push(`${d['assigned_patients']} patient(s)`);
+        if (d['total_employees']    != null) parts.push(`${d['total_employees']} employé(s)`);
+        if (d['appointments_today'] != null) parts.push(`${d['appointments_today']} RDV aujourd'hui`);
+        return parts.join(' · ') || 'OK';
+      }
       default:
         return 'OK';
     }

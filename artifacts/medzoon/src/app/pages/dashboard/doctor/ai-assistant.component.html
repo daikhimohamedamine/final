@@ -2,7 +2,7 @@
   <button class="ai-fab" type="button" (click)="toggle()" aria-label="Open AI Assistant">
     <app-icon name="sparkles" [size]="22"></app-icon>
     <span class="ai-fab__label">Assistant IA</span>
-    @if (badgeCount() > 0) { <span class="ai-fab__badge">{{ badgeCount() }}</span> }
+    @if (showDoctorBadge() && badgeCount() > 0) { <span class="ai-fab__badge">{{ badgeCount() }}</span> }
   </button>
 }
 
@@ -12,8 +12,8 @@
       <div class="ai-panel__title">
         <span class="ai-panel__avatar"><app-icon name="sparkles" [size]="16"></app-icon></span>
         <div>
-          <strong>MedAssist · Assistant clinique IA</strong>
-          <span>Outils en direct · dossiers, interactions, ordonnances</span>
+          <strong>MedAssist · Assistant IA</strong>
+          <span>{{ subtitle() }}</span>
         </div>
       </div>
       <div class="ai-panel__actions">
@@ -70,7 +70,7 @@
                     <p class="ai-suggestion__dci">{{ s.drug.generic_name }}</p>
                     <p class="ai-suggestion__reason">→ {{ s.reason }}</p>
                     @if (s.warning) { <p class="ai-suggestion__warn">{{ s.warning }}</p> }
-                    @if (!s.warning) {
+                    @if (!s.warning && showDoctorBadge()) {
                       <button type="button" class="ai-suggestion__add" (click)="prescribe(s.drug)">
                         <app-icon name="plus" [size]="12"></app-icon> Ajouter à l'ordonnance
                       </button>
@@ -122,7 +122,7 @@
           type="text"
           [value]="input()"
           (input)="input.set($any($event.target).value)"
-          placeholder="Ex: dossier 1234, ordonnance amoxicilline, interactions warfarine + ibuprofène…"
+          [placeholder]="placeholder()"
           [disabled]="thinking()"
         />
         <button type="submit" [disabled]="thinking() || !input().trim()">

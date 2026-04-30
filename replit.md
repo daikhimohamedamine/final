@@ -66,12 +66,21 @@ The `/api/v1/ai/chat` endpoint is now powered by a custom agentic engine (`backe
 - `ToolRegistry` — auto-collects all `Tool` beans.
 
 ### Tools (`medassist/tools/`)
+**Clinical tools**
 1. **get_patient_history** — assembles profile, antecedents, recent consultations, vitals (with BMI), and appointments for an `EmployeeEntity`. MEDECIN can only access patients assigned to them.
 2. **search_medical_library** — searches `DrugEntity` by drug name, generic name, indications, and sicknesses.
 3. **generate_prescription** — MEDECIN-only. Runs `check_drug_interactions` first; if no major conflicts, persists a `ConsultationEntity` of type `ORDONNANCE` with the prescription JSON in the encrypted `details` column.
 4. **recommend_doctor** — symptom→specialty mapping (50+ keywords FR/EN) returning matched MEDECIN users.
 5. **check_drug_interactions** — bundled drug-drug interaction table + patient allergy/antecedent scan derived from `EmployeeEntity` antecedent fields.
 6. **generate_soap_note** — MEDECIN-only. Persists a `ConsultationEntity` of type `SOAP` with markdown SOAP note in `details`.
+
+**Application & operational tools** (added so the assistant can answer ANY question across roles — admin, coord, doctor)
+7. **get_app_info** — returns curated documentation about the platform (features per role, navigation paths, terminology, "how do I…" guidance). Topics: `overview`, `navigation`, `admin`, `coordinatrice`, `doctor`, `employees`, `consultations`, `appointments`, `reminders`, `audit`, `drugs`, `auth`, `vaccines`, `settings`, `roles`. The system prompt requires the model to call this for any application/UX question rather than fabricating an answer.
+8. **list_employees** — paginated employee/patient search. MEDECIN restricted to assigned patients.
+9. **list_users** — staff lookup (filter by role: ADMIN/COORDINATRICE/MEDECIN/all). Email visible only to ADMIN and COORDINATRICE.
+10. **list_appointments** — appointments in a date range (`from`/`to` ISO dates). MEDECIN scoped to own appointments.
+11. **list_audit_logs** — recent audit entries with optional `action`/`entity_type` filters. ADMIN-only — returns FORBIDDEN for other roles.
+12. **get_dashboard_stats** — role-relevant KPIs: MEDECIN gets assigned-patient count + today/7-day appointments; COORDINATRICE gets total employees + pending reminders; ADMIN gets full counts (users, doctors, coords, consultations, employees, today's appointments).
 
 ### HTTP API
 - `POST /api/v1/ai/chat` — JSON `{ message, history?, sessionId? }` → `{ response, thinking?, toolCalls?, error? }`. Backwards-compatible with the previous Gemini-based endpoint.
@@ -83,8 +92,12 @@ The `/api/v1/ai/chat` endpoint is now powered by a custom agentic engine (`backe
 - `COORDINATRICE` → coordinator mode (read-only patient lookups; cannot prescribe)
 - `ADMIN` → admin mode (read-only; cannot prescribe)
 
-### Frontend wiring (medzoon Angular AI Assistant)
+### Frontend wiring (medzoon Angular AI Assistant — visible to ALL roles)
+The assistant is mounted globally inside `dashboard-shell.component.html` (`<app-ai-assistant/>` rendered whenever a user is logged in), so admins, coordinatrices and doctors all share the same streaming UI.
+
 - `src/app/core/api/medassist.service.ts` — fetch+ReadableStream SSE client posting to `/ai/stream` with the JWT bearer header. Parses `event:`/`data:` frames into typed `StreamEvent`s. Falls back to the buffered `/ai/chat` JSON endpoint and synthesizes events if SSE fails. Persists `sessionId` in `localStorage` (`medzoon.medassist.session`) for conversation continuity; `resetSession()` clears it and DELETEs server-side.
-- `src/app/pages/dashboard/doctor/ai-assistant.component.*` — replaces `GeminiService`. Renders live tool-call progress chips (running/success/error) inside the assistant bubble with French labels (`Récupération du dossier patient`, `Vérification des interactions médicamenteuses`, …) and per-step inputs/results. Each completed step is expandable to show the raw JSON payload. A header refresh button starts a new conversation.
+- `src/app/pages/dashboard/doctor/ai-assistant.component.*` — single role-aware component (file path is historical; serves all roles). Replaces `GeminiService`. Renders live tool-call progress chips (running/success/error) inside the assistant bubble with French labels for all 12 tools (`Récupération du dossier patient`, `Recherche d'employés`, `Liste des rendez-vous`, `Lecture du journal d'audit`, `Calcul des indicateurs`, …) and per-step inputs/results. Each completed step is expandable to show the raw JSON payload. A header refresh button starts a new conversation.
+  - **Role-aware UI**: greeting text, header subtitle, and input placeholder all switch via `computed()` based on `AuthService.role()` — admin sees stats/audit hints, coord sees scheduling/reminder hints, doctor sees clinical hints.
+  - **Doctor-only affordances**: "Ajouter à l'ordonnance" buttons on drug suggestions and the prescription-cart badge on the FAB are hidden for non-doctors.
 - `src/app/shared/icon.component.ts` — added `refresh` and `alert` icons used by the assistant header and error chips.
-- `GeminiService` is no longer referenced by the doctor AI assistant; safe to delete in a follow-up.
+- `GeminiService` is no longer referenced by the AI assistant; safe to delete in a follow-up.
